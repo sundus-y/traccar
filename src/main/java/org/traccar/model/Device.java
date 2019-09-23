@@ -151,15 +151,23 @@ public class Device extends GroupedModel {
 
     private String plateNumber;
 
-    public String getPlateNumber() { return plateNumber; }
+    public String getPlateNumber() {
+        return plateNumber;
+    }
 
-    public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
 
     private String vehicleModel;
 
-    public String getVehicleModel() { return vehicleModel; }
+    public String getVehicleModel() {
+        return vehicleModel;
+    }
 
-    public void setVehicleModel(String vehicleModel) { this.vehicleModel = vehicleModel; }
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
 
     private Date membershipDate;
 
