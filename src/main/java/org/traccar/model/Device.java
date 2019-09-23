@@ -149,4 +149,33 @@ public class Device extends GroupedModel {
         this.disabled = disabled;
     }
 
+    private String plateNumber;
+
+    public String getPlateNumber() { return plateNumber; }
+
+    public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
+
+    private String vehicleModel;
+
+    public String getVehicleModel() { return vehicleModel; }
+
+    public void setVehicleModel(String vehicleModel) { this.vehicleModel = vehicleModel; }
+
+    private Date membershipDate;
+
+    public Date getMembershipDate() {
+        if (membershipDate != null) {
+            return new Date(membershipDate.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    public void setMembershipDate(Date membershipDate) {
+        if (membershipDate != null) {
+            this.membershipDate = new Date(membershipDate.getTime());
+        } else {
+            this.membershipDate = null;
+        }
+    }
 }
