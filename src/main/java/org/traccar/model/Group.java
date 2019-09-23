@@ -27,4 +27,84 @@ public class Group extends GroupedModel {
         this.name = name;
     }
 
+    private String managerName;
+
+    public String getManagerName() {
+        return managerName;
+    }
+
+    public void setManagerName(String managerName) {
+        this.managerName = managerName;
+    }
+
+    private String contactNumber1;
+
+    public String getContactNumber1() {
+        return contactNumber1;
+    }
+
+    public void setContactNumber1(String contactNumber1) {
+        this.contactNumber1 = contactNumber1;
+    }
+
+    private String contactNumber2;
+
+    public String getContactNumber2() {
+        return contactNumber2;
+    }
+
+    public void setContactNumber2(String contactNumber2) {
+        this.contactNumber2 = contactNumber2;
+    }
+
+    private String contactNumber3;
+
+    public String getContactNumber3() {
+        return contactNumber3;
+    }
+
+    public void setContactNumber3(String contactNumber3) {
+        this.contactNumber3 = contactNumber3;
+    }
+
+    private String tinNumber;
+
+    public String getTinNumber() {
+        return tinNumber;
+    }
+
+    public void setTinNumber(String tinNumber) {
+        this.tinNumber = tinNumber;
+    }
+
+    private String licenseNumber;
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    private String note;
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
 }

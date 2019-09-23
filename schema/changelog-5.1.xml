@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+        logicalFilePath="changelog-5.1">
+
+    <changeSet author="Sundus" id="changelog-5.1">
+
+        <addColumn tableName="tc_groups">
+            <column name="PlateNumber" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="ManagerName" type="VARCHAR(40)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="ContactNumber1" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="ContactNumber2" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="ContactNumber3" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="TINNumber" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="LicenseNumber" type="VARCHAR(20)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="Address" type="VARCHAR(50)"/>
+        </addColumn>
+        <addColumn tableName="tc_groups">
+            <column name="Note" type="VARCHAR(4000)"/>
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>
