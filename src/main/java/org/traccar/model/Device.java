@@ -186,4 +186,75 @@ public class Device extends GroupedModel {
             this.membershipDate = null;
         }
     }
+
+    private String gender;
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    private String countryOfManufacturing;
+
+    public String getCountryOfManufacturing() {
+        return countryOfManufacturing;
+    }
+
+    public void setCountryOfManufacturing(String countryOfManufacturing) {
+        this.countryOfManufacturing = countryOfManufacturing;
+    }
+
+    private String manufacturingYear;
+
+    public String getManufacturingYear() {
+        return manufacturingYear;
+    }
+
+    public void setManufacturingYear(String manufacturingYear) {
+        this.manufacturingYear = manufacturingYear;
+    }
+
+    private String engineNumber;
+
+    public String getEngineNumber() {
+        return engineNumber;
+    }
+
+    public void setEngineNumber(String engineNumber) {
+        this.engineNumber = engineNumber;
+    }
+
+    private String vinNumber;
+
+    public String getVinNumber() {
+        return vinNumber;
+    }
+
+    public void setVinNumber(String vinNumber) {
+        this.vinNumber = vinNumber;
+    }
+
+    private String simNumber;
+
+    public String getSimNumber() {
+        return simNumber;
+    }
+
+    public void setSimNumber(String simNumber) {
+        this.simNumber = simNumber;
+    }
+
+    private String simIccidNumber;
+
+    public String getSimIccidNumber() {
+        return simIccidNumber;
+    }
+
+    public void setSimIccidNumber(String simIccidNumber) {
+        this.simIccidNumber = simIccidNumber;
+    }
+
 }

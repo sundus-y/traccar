@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+        logicalFilePath="changelog-5.2">
+
+    <changeSet author="Sundus" id="changelog-5.2">
+        <addColumn tableName="tc_devices">
+            <column name="Gender" type="VARCHAR(10)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="CountryOfManufacturing" type="VARCHAR(40)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="ManufacturingYear" type="VARCHAR(10)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="EngineNumber" type="VARCHAR(40)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="VinNumber" type="VARCHAR(40)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="SimNumber" type="VARCHAR(40)"/>
+        </addColumn>
+        <addColumn tableName="tc_devices">
+            <column name="SimIccidNumber" type="VARCHAR(40)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
