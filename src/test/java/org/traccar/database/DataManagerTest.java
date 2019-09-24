@@ -27,7 +27,7 @@ public class DataManagerTest {
 
         String insertDevice = DataManager.constructObjectQuery(DataManager.ACTION_INSERT, Device.class, false);
         assertFalse(insertDevice.contains("class"));
-        assertFalse(insertDevice.contains("id"));
+        assertFalse(insertDevice.contains("id,"));
         assertFalse(insertDevice.contains("status"));
         assertFalse(insertDevice.contains("geofenceIds"));
 
