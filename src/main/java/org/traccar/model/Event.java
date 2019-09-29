@@ -16,8 +16,6 @@
 package org.traccar.model;
 
 import org.apache.commons.lang.WordUtils;
-import org.traccar.Context;
-import org.traccar.database.DeviceManager;
 import org.traccar.database.QueryIgnore;
 
 import java.util.Arrays;
