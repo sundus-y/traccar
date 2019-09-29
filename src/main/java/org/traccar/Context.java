@@ -68,6 +68,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.ext.ContextResolver;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Properties;
 
 public final class Context {
@@ -275,6 +276,7 @@ public final class Context {
 
         if (config.getBoolean("logger.enable")) {
             Log.setupLogger(config);
+            Arrays.stream(config.getAllProps()).forEach(conf -> LOGGER.info(conf));
         }
 
         objectMapper = new ObjectMapper();

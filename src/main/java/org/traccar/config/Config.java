@@ -163,4 +163,8 @@ public class Config {
         return key.replaceAll("\\.", "_").replaceAll("(\\p{Lu})", "_$1").toUpperCase();
     }
 
+    public String[] getAllProps() {
+        return properties.toString().split(", ");
+    }
+
 }
