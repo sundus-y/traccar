@@ -29,6 +29,7 @@ import java.util.Iterator;
 
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.traccar.Context;
+import org.traccar.config.Keys;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
 import org.traccar.model.Geofence;
@@ -141,7 +142,8 @@ public final class Events {
             for (int i = result.size() - 1; i >= Math.max(result.size() - 3, 0); i--) {
                 Event ev = result.get(i);
                 long diffInSeconds = Math.abs(ev.getServerTime().getTime() - event.getServerTime().getTime()) / 1000;
-                if (ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE) && diffInSeconds < 180) {
+                if (ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE)
+                        && (diffInSeconds < Context.getConfig().getInteger(Keys.CHECK_EVENT_TIMEOUT_VALUE))) {
                     result.remove(ev);
                     dontIgnore = false;
                 }

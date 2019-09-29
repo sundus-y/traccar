@@ -70,6 +70,12 @@ public final class Keys {
             "event.ignoreDuplicateAlerts", Boolean.class);
 
     /**
+     * Timeout for ignoring events with frequent interval.
+     */
+    public static final ConfigKey CHECK_EVENT_TIMEOUT_VALUE = new ConfigKey(
+            "event.checkEventTimeoutValue", Integer.class);
+
+    /**
      * List of external handler classes to use in Netty pipeline.
      */
     public static final ConfigKey EXTRA_HANDLERS = new ConfigKey(
