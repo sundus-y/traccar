@@ -16,6 +16,9 @@
 package org.traccar.model;
 
 import org.apache.commons.lang.WordUtils;
+import org.traccar.Context;
+import org.traccar.database.DeviceManager;
+import org.traccar.database.QueryIgnore;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -109,6 +112,7 @@ public class Event extends Message {
         this.maintenanceId = maintenanceId;
     }
 
+    @QueryIgnore
     public String getTypeForExcel() {
         String text = Arrays.stream(WordUtils.capitalize(getType())
                 .split("(?=\\p{Upper})"))
