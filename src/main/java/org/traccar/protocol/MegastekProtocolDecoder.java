@@ -378,7 +378,7 @@ public class MegastekProtocolDecoder extends BaseProtocolDecoder {
             case "poweron":
                 return Position.ALARM_POWER_ON;
             case "poweroff":
-                return Position.ALARM_POWER_ON;
+                return Position.ALARM_POWER_OFF;
             case "sos":
             case "help":
                 return Position.ALARM_SOS;

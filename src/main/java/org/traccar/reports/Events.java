@@ -56,7 +56,7 @@ public final class Events {
                     if ((geofenceId == 0 || Context.getGeofenceManager().checkItemPermission(userId, geofenceId))
                             && (maintenanceId == 0
                             || Context.getMaintenancesManager().checkItemPermission(userId, maintenanceId))) {
-                       result.add(event);
+                        checkEventTimeout(result, event);
                     }
                 }
             }
@@ -104,6 +104,10 @@ public final class Events {
                     iterator.remove();
                 }
             }
+            ArrayList<Event> result = new ArrayList<>();
+            for (Event event : events) {
+                checkEventTimeout(result, event);
+            }
             DeviceReport deviceEvents = new DeviceReport();
             Device device = Context.getIdentityManager().getById(deviceId);
             deviceEvents.setDeviceName(device.getName());
@@ -114,7 +118,7 @@ public final class Events {
                     deviceEvents.setGroupName(group.getName());
                 }
             }
-            deviceEvents.setObjects(events);
+            deviceEvents.setObjects(result);
             devicesEvents.add(deviceEvents);
         }
         String templatePath = Context.getConfig().getString("report.templatesPath",
@@ -128,6 +132,23 @@ public final class Events {
             jxlsContext.putVar("from", from);
             jxlsContext.putVar("to", to);
             ReportUtils.processTemplateWithSheets(inputStream, outputStream, jxlsContext);
+        }
+    }
+
+    private static void checkEventTimeout(ArrayList<Event> result, Event event) {
+        boolean dontIgnore = true;
+        if (event.getType().equalsIgnoreCase(Event.TYPE_DEVICE_ONLINE)) {
+            for (int i = result.size()-1; i >= Math.max(result.size() - 3, 0); i--) {
+                Event ev = result.get(i);
+                long diffInSeconds = Math.abs(ev.getServerTime().getTime() - event.getServerTime().getTime())/1000;
+                if(ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE) && diffInSeconds < 180) {
+                    result.remove(ev);
+                    dontIgnore = false;
+                }
+            }
+        }
+        if(dontIgnore){
+            result.add(event);
         }
     }
 }

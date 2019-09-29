@@ -112,8 +112,8 @@ public class Position extends Message {
     public static final String ALARM_LOW_POWER = "lowPower";
     public static final String ALARM_LOW_BATTERY = "lowBattery";
     public static final String ALARM_FAULT = "fault";
-    public static final String ALARM_POWER_OFF = "powerOff";
-    public static final String ALARM_POWER_ON = "powerOn";
+    public static final String ALARM_POWER_OFF = "powerDisconnected";
+    public static final String ALARM_POWER_ON = "powerConnected";
     public static final String ALARM_DOOR = "door";
     public static final String ALARM_LOCK = "lock";
     public static final String ALARM_UNLOCK = "unlock";

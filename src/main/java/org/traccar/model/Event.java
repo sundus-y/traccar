@@ -15,7 +15,15 @@
  */
 package org.traccar.model;
 
+import org.apache.commons.lang.WordUtils;
+
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.traccar.helper.UnitsConverter.kphFromKnots;
 
 public class Event extends Message {
 
@@ -100,5 +108,64 @@ public class Event extends Message {
     public void setMaintenanceId(long maintenanceId) {
         this.maintenanceId = maintenanceId;
     }
+
+    public String getTypeForExcel() {
+        String text = Arrays.stream(WordUtils.capitalize(getType()).split("(?=\\p{Upper})")).collect(Collectors.joining(" "));
+        if (getType().equalsIgnoreCase("commandResult")) {
+            text = " Command result: " + getString("result");
+        } else if (getType().equalsIgnoreCase("alarm")) {
+            String alarmKey = getString("alarm");
+            alarmKey = "alarm" + Character.toUpperCase(alarmKey.charAt(0)) + alarmKey.substring(1,alarmKey.length());
+            text += " - " + alarmMap.get(alarmKey);
+        } else if (getType().equalsIgnoreCase("deviceOverspeed")) {
+            Double speed = Math.ceil(kphFromKnots(getDouble("speed")));
+            Double limit = Math.ceil(kphFromKnots(getDouble("speedLimit")));
+            text += " - Speed: " + speed + "km/h";
+            text += " (Speed Limit: " + limit + "km/h)";
+        }
+        return text;
+    }
+
+    private Map<String, String> alarmMap = new LinkedHashMap<String, String>(){{
+        put("alarmGeneral", "General");
+        put("alarmSos", "SOS");
+        put("alarmVibration", "Vibration");
+        put("alarmMovement", "Movement");
+        put("alarmLowspeed", "Low Speed");
+        put("alarmOverspeed", "Overspeed");
+        put("alarmFallDown", "Fall Down");
+        put("alarmLowPower", "Low Power");
+        put("alarmLowBattery", "Low Battery");
+        put("alarmFault", "Fault");
+        put("alarmPowerOff", "Power Disconnected");
+        put("alarmPowerOn", "Power Connected");
+        put("alarmDoor", "Door");
+        put("alarmLock", "Lock");
+        put("alarmUnlock", "Unlock");
+        put("alarmGeofence", "Geofence");
+        put("alarmGeofenceEnter", "Geofence Enter");
+        put("alarmGeofenceExit", "Geofence Exit");
+        put("alarmGpsAntennaCut", "GPS Antenna Cut");
+        put("alarmAccident", "Accident");
+        put("alarmTow", "Tow");
+        put("alarmIdle", "Idle");
+        put("alarmHighRpm", "High RPM");
+        put("alarmHardAcceleration", "Hard Acceleration");
+        put("alarmHardBraking", "Hard Braking");
+        put("alarmHardCornering", "Hard Cornering");
+        put("alarmLaneChange", "Lane Change");
+        put("alarmFatigueDriving", "Fatigue Driving");
+        put("alarmPowerCut", "Power Cut");
+        put("alarmPowerRestored", "Power Restored");
+        put("alarmJamming", "Jamming");
+        put("alarmTemperature", "Temperature");
+        put("alarmParking", "Parking");
+        put("alarmShock", "Shock");
+        put("alarmBonnet", "Bonnet");
+        put("alarmFootBrake", "Foot Brake");
+        put("alarmFuelLeak", "Fuel Leak");
+        put("alarmTampering", "Tampering");
+        put("alarmRemoving", "Removing");
+    }};
 
 }
