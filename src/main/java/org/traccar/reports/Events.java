@@ -139,10 +139,11 @@ public final class Events {
     private static void checkEventTimeout(ArrayList<Event> result, Event event) {
         boolean dontIgnore = true;
         if (event.getType().equalsIgnoreCase(Event.TYPE_DEVICE_ONLINE)) {
-            for (int i = result.size() - 1; i >= Math.max(result.size() - 3, 0); i--) {
+            for (int i = result.size() - 1; i >= Math.max(result.size() - 5, 0); i--) {
                 Event ev = result.get(i);
                 long diffInSeconds = Math.abs(ev.getServerTime().getTime() - event.getServerTime().getTime()) / 1000;
-                if (ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE)
+                if ((ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE)
+                        || ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_UNKNOWN))
                         && (diffInSeconds < Context.getConfig().getInteger(Keys.CHECK_EVENT_TIMEOUT_VALUE))) {
                     result.remove(ev);
                     dontIgnore = false;
