@@ -110,12 +110,16 @@ public class Event extends Message {
     }
 
     public String getTypeForExcel() {
-        String text = Arrays.stream(WordUtils.capitalize(getType()).split("(?=\\p{Upper})")).collect(Collectors.joining(" "));
+        String text = Arrays.stream(WordUtils.capitalize(getType())
+                .split("(?=\\p{Upper})"))
+                .collect(Collectors.joining(" "));
         if (getType().equalsIgnoreCase("commandResult")) {
             text = " Command result: " + getString("result");
         } else if (getType().equalsIgnoreCase("alarm")) {
             String alarmKey = getString("alarm");
-            alarmKey = "alarm" + Character.toUpperCase(alarmKey.charAt(0)) + alarmKey.substring(1,alarmKey.length());
+            alarmKey = "alarm"
+                    + Character.toUpperCase(alarmKey.charAt(0))
+                    + alarmKey.substring(1, alarmKey.length());
             text += " - " + alarmMap.get(alarmKey);
         } else if (getType().equalsIgnoreCase("deviceOverspeed")) {
             Double speed = Math.ceil(kphFromKnots(getDouble("speed")));
@@ -126,7 +130,7 @@ public class Event extends Message {
         return text;
     }
 
-    private Map<String, String> alarmMap = new LinkedHashMap<String, String>(){{
+    private Map<String, String> alarmMap = new LinkedHashMap<String, String>() {{
         put("alarmGeneral", "General");
         put("alarmSos", "SOS");
         put("alarmVibration", "Vibration");

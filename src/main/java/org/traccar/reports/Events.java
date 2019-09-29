@@ -138,16 +138,16 @@ public final class Events {
     private static void checkEventTimeout(ArrayList<Event> result, Event event) {
         boolean dontIgnore = true;
         if (event.getType().equalsIgnoreCase(Event.TYPE_DEVICE_ONLINE)) {
-            for (int i = result.size()-1; i >= Math.max(result.size() - 3, 0); i--) {
+            for (int i = result.size() - 1; i >= Math.max(result.size() - 3, 0); i--) {
                 Event ev = result.get(i);
-                long diffInSeconds = Math.abs(ev.getServerTime().getTime() - event.getServerTime().getTime())/1000;
-                if(ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE) && diffInSeconds < 180) {
+                long diffInSeconds = Math.abs(ev.getServerTime().getTime() - event.getServerTime().getTime()) / 1000;
+                if (ev.getType().equalsIgnoreCase(Event.TYPE_DEVICE_OFFLINE) && diffInSeconds < 180) {
                     result.remove(ev);
                     dontIgnore = false;
                 }
             }
         }
-        if(dontIgnore){
+        if (dontIgnore) {
             result.add(event);
         }
     }
