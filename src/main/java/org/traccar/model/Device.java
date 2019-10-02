@@ -227,14 +227,14 @@ public class Device extends GroupedModel {
         this.engineNumber = engineNumber;
     }
 
-    private String vinNumber;
+    private String chassisNumber;
 
-    public String getVinNumber() {
-        return vinNumber;
+    public String getChassisNumber() {
+        return chassisNumber;
     }
 
-    public void setVinNumber(String vinNumber) {
-        this.vinNumber = vinNumber;
+    public void setChassisNumber(String chassisNumber) {
+        this.chassisNumber = chassisNumber;
     }
 
     private String simNumber;
