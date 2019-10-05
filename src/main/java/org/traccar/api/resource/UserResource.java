@@ -27,6 +27,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -89,6 +90,23 @@ public class UserResource extends BaseObjectResource<User> {
         }
         Context.getUsersManager().refreshUserItems();
         return Response.ok(entity).build();
+    }
+
+    @Override
+    @Path("{id}")
+    @PUT
+    public Response update(User entity) throws SQLException {
+        if (Context.getPermissionsManager().getUserAdmin(getUserId())) {
+            return super.update(entity);
+        } else if (getUserId() == entity.getId()) {
+            User oldUser = Context.getManager(User.class).getById(entity.getId());
+            Context.getPermissionsManager().checkBasicUserUpdate(oldUser, entity);
+            Context.getManager(User.class).updateItem(entity);
+            LogAction.edit(getUserId(), entity);
+            return Response.ok(entity).build();
+        } else {
+            return super.update(entity);
+        }
     }
 
 }

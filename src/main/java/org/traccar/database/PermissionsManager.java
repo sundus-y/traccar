@@ -285,6 +285,21 @@ public class PermissionsManager {
         }
     }
 
+    public void checkBasicUserUpdate(User before, User after) throws SecurityException {
+        if (before.getId() != after.getId()
+                || before.getReadonly() != after.getReadonly()
+                || before.getAdministrator() != after.getAdministrator()
+                || before.getLatitude() != after.getLatitude()
+                || before.getLongitude() != after.getLongitude()
+                || before.getZoom() != after.getZoom()
+                || !before.getAttributes().equals(after.getAttributes())
+                || before.getDisabled() != after.getDisabled()
+                || before.getPhone().compareTo(after.getPhone()) != 0
+                || before.getLogin().compareTo(after.getLogin()) != 0) {
+            throw new SecurityException("User can only update basic details");
+        }
+    }
+
     public void checkUser(long userId, long managedUserId) throws SecurityException {
         if (userId != managedUserId && !getUserAdmin(userId)) {
             checkManager(userId, managedUserId);
