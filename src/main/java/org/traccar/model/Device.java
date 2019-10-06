@@ -18,6 +18,8 @@ package org.traccar.model;
 import java.util.Date;
 import java.util.List;
 
+import org.traccar.Context;
+import org.traccar.database.BaseObjectManager;
 import org.traccar.database.QueryExtended;
 import org.traccar.database.QueryIgnore;
 
@@ -257,4 +259,10 @@ public class Device extends GroupedModel {
         this.simIccidNumber = simIccidNumber;
     }
 
+    @QueryIgnore
+    public String getGroupName() {
+        BaseObjectManager<Group> groupManager = Context.getManager(Group.class);
+        Group group = groupManager.getById(getGroupId());
+        return group == null ? "" : group.getName();
+    }
 }

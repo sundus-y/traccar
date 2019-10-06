@@ -42,14 +42,18 @@ import org.traccar.api.BaseResource;
 import org.traccar.helper.DateUtil;
 import org.traccar.model.Event;
 import org.traccar.model.Position;
+import org.traccar.reports.Devices;
 import org.traccar.reports.Events;
 import org.traccar.reports.Summary;
+import org.traccar.reports.Route;
+import org.traccar.reports.Stops;
 import org.traccar.reports.Trips;
 import org.traccar.reports.model.StopReport;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.reports.model.TripReport;
-import org.traccar.reports.Route;
-import org.traccar.reports.Stops;
+
+import org.traccar.model.Device;
+
 
 @Path("reports")
 @Produces(MediaType.APPLICATION_JSON)
@@ -204,6 +208,22 @@ public class ReportResource extends BaseResource {
         return executeReport(getUserId(), mail, stream -> {
             Stops.getExcel(stream, getUserId(), deviceIds, groupIds,
                     DateUtil.parseDate(from), DateUtil.parseDate(to));
+        });
+    }
+
+    @Path("devices")
+    @GET
+    public Collection<Device> getDevices() throws SQLException {
+        return Devices.getObjects(getUserId());
+    }
+
+    @Path("devices")
+    @GET
+    @Produces(XLSX)
+    public Response getDevicesExcel(@QueryParam("mail") boolean mail)
+            throws SQLException, IOException {
+        return executeReport(getUserId(), mail, stream -> {
+            Devices.getExcel(stream, getUserId());
         });
     }
 
