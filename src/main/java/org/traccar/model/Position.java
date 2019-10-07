@@ -302,4 +302,8 @@ public class Position extends Message {
         return super.getType();
     }
 
+    @Override
+    public String toString() {
+        return getLatitude() + ", " + getLongitude();
+    }
 }

@@ -19,7 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.traccar.Context;
-import org.traccar.database.BaseObjectManager;
+import org.traccar.database.DeviceManager;
+import org.traccar.database.GroupsManager;
 import org.traccar.database.QueryExtended;
 import org.traccar.database.QueryIgnore;
 
@@ -261,8 +262,15 @@ public class Device extends GroupedModel {
 
     @QueryIgnore
     public String getGroupName() {
-        BaseObjectManager<Group> groupManager = Context.getManager(Group.class);
+        GroupsManager groupManager = Context.getGroupsManager();
         Group group = groupManager.getById(getGroupId());
         return group == null ? "" : group.getName();
+    }
+
+    @QueryIgnore
+    public String getLastLocation() {
+        DeviceManager deviceManager = Context.getDeviceManager();
+        Position position = deviceManager.getLastPosition(getId());
+        return position == null ? "" : position.toString();
     }
 }
