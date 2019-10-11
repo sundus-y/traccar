@@ -23,7 +23,7 @@ public class NominatimGeocoder extends JsonGeocoder {
         if (url == null) {
             url = "https://nominatim.openstreetmap.org/reverse";
         }
-        url += "?format=json&lat=%f&lon=%f&zoom=18&addressdetails=1";
+        url += "?format=json&lat=%f&lon=%f&zoom=17&addressdetails=1";
         if (key != null) {
             url += "&key=" + key;
         }
