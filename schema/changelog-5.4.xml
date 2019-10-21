@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+        logicalFilePath="changelog-5.4">
+
+    <changeSet author="Sundus" id="changelog-5.4">
+        <sql>CREATE TABLE tc_devices_versions as (SELECT * FROM tc_devices);</sql>
+        <sql>TRUNCATE TABLE tc_devices_versions;</sql>
+        <addColumn tableName="tc_devices_versions">
+            <column name="DeletedDate" type="TIMESTAMP"/>
+        </addColumn>
+        <sql endDelimiter="" splitStatements="false">
+            CREATE TRIGGER traccar.tc_devices_delete BEFORE DELETE
+            ON traccar.tc_devices FOR EACH ROW BEGIN
+                INSERT INTO tc_devices_versions
+                SELECT *, SYSDATE() FROM tc_devices where id = OLD.id;
+                INSERT INTO tc_positions_versions
+                SELECT *, SYSDATE() FROM tc_positions where deviceid = OLD.id;
+            END
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

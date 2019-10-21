@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+        logicalFilePath="changelog-5.5">
+
+    <changeSet author="Sundus" id="changelog-5.5">
+        <sql>CREATE TABLE tc_positions_versions as (SELECT * FROM tc_positions);</sql>
+        <sql>TRUNCATE TABLE tc_positions_versions;</sql>
+        <addColumn tableName="tc_positions_versions">
+            <column name="DeletedDate" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
