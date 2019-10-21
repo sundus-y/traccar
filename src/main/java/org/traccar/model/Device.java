@@ -260,12 +260,16 @@ public class Device extends GroupedModel {
         this.simIccidNumber = simIccidNumber;
     }
 
+    private String groupName;
+
     @QueryIgnore
     public String getGroupName() {
         GroupsManager groupManager = Context.getGroupsManager();
         Group group = groupManager.getById(getGroupId());
         return group == null ? "" : group.getName();
     }
+
+    private String lastLocation;
 
     @QueryIgnore
     public String getLastLocation() {
