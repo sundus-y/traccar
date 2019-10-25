@@ -152,25 +152,25 @@ public class FilterHandler extends BaseDataHandler {
         }
 
         if (filterInvalid(position)) {
-            filterType.append("Invalid ");
+            filterType.append("Invalid (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterZero(position)) {
-            filterType.append("Zero ");
+            filterType.append("Zero (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterDuplicate(position, last) && !skipLimit(position, last) && !skipAttributes(position)) {
-            filterType.append("Duplicate ");
+            filterType.append("Duplicate (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterFuture(position)) {
-            filterType.append("Future ");
+            filterType.append("Future (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterAccuracy(position)) {
-            filterType.append("Accuracy ");
+            filterType.append("Accuracy (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterApproximate(position)) {
-            filterType.append("Approximate ");
+            filterType.append("Approximate (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterStatic(position) && !skipLimit(position, last) && !skipAttributes(position)) {
-            filterType.append("Static ");
+            filterType.append("Static (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterDistance(position, last) && !skipLimit(position, last) && !skipAttributes(position)) {
             filterType.append("Distance ");
