@@ -24,6 +24,7 @@ import org.traccar.config.Config;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.StatisticsManager;
+import org.traccar.handler.FilterHandler;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Device;
 import org.traccar.model.Position;
@@ -196,13 +197,7 @@ public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
 
             Position last = identityManager.getLastPosition(position.getDeviceId());
             if (last != null) {
-                position.setFixTime(last.getFixTime());
-                position.setValid(last.getValid());
-                position.setLatitude(last.getLatitude());
-                position.setLongitude(last.getLongitude());
-                position.setAltitude(last.getAltitude());
-                position.setSpeed(last.getSpeed());
-                position.setCourse(last.getCourse());
+                FilterHandler.clonePosition(position, last);
                 position.setAccuracy(last.getAccuracy());
             } else {
                 position.setFixTime(new Date(0));

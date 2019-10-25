@@ -24,6 +24,8 @@ import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Position;
+import java.util.HashMap;
+import java.util.Map;
 
 @ChannelHandler.Sharable
 public class FilterHandler extends BaseDataHandler {
@@ -189,6 +191,10 @@ public class FilterHandler extends BaseDataHandler {
             message.append(Context.getIdentityManager().getById(position.getDeviceId()).getUniqueId());
 
             LOGGER.info(message.toString());
+
+            if (filterType.indexOf("Zero") != -1) {
+                return false;
+            }
             return true;
         }
 
@@ -200,7 +206,46 @@ public class FilterHandler extends BaseDataHandler {
         if (filter(position)) {
             return null;
         }
+        if (filterZero(position)) {
+            Position last = null;
+            if (Context.getIdentityManager() != null) {
+                last = Context.getIdentityManager().getLastPosition(position.getDeviceId());
+                if (last != null) {
+                    Map<String, Object> attr = new HashMap<>();
+                    attr.put("ZeroLocation", true);
+                    attr.put("PreviousLocation", true);
+                    attr.putAll(last.getAttributes());
+
+                    position.setAttributes(attr);
+                    position.setServerTime(last.getServerTime());
+                    position.setDeviceTime(last.getDeviceTime());
+                    clonePosition(position, last);
+                    position.setAddress(last.getAddress() == null ? "" : last.getAddress());
+                    position.setAccuracy(last.getAccuracy());
+                    position.setNetwork(last.getNetwork());
+                } else {
+                    Map<String, Object> attr = new HashMap<>();
+                    attr.put("ZeroLocation", true);
+                    attr.put("PreviousLocation", true);
+                    attr.put("ZeroPosition", "Head Office");
+                    attr.putAll(position.getAttributes());
+                    position.setAttributes(attr);
+                    position.setLatitude(9.018015);
+                    position.setLongitude(38.795576);
+                }
+            }
+        }
         return position;
+    }
+
+    public static void clonePosition(Position position, Position last) {
+        position.setFixTime(last.getFixTime());
+        position.setValid(last.getValid());
+        position.setLatitude(last.getLatitude());
+        position.setLongitude(last.getLongitude());
+        position.setAltitude(last.getAltitude());
+        position.setSpeed(last.getSpeed());
+        position.setCourse(last.getCourse());
     }
 
 }
