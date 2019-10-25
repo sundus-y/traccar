@@ -232,16 +232,15 @@ public class FilterHandler extends BaseDataHandler {
                     attr.put("ZeroPosition", "Head Office");
                     attr.putAll(position.getAttributes());
                     position.setAttributes(attr);
-                    position.setServerTime(new Date(0));
-                    position.setDeviceTime(new Date(0));
-                    position.setFixTime(new Date(0));
+                    position.setServerTime(new Date());
+                    position.setDeviceTime(new Date());
+                    position.setFixTime(new Date());
                     position.setValid(true);
                     position.setLatitude(9.018015);
                     position.setLongitude(38.795576);
                     position.setAltitude(0.0);
                     position.setSpeed(0.0);
                     position.setCourse(0.0);
-
                 }
             }
         }
