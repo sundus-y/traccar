@@ -70,7 +70,7 @@ public class FilterHandlerTest extends BaseTest {
 
         position = createPosition(0, new Date(), false, 10, 10, 10, 10, 10);
 
-        assertNull(filteringHandler.handlePosition(position));
+        assertNotNull(filteringHandler.handlePosition(position));
         assertNotNull(passingHandler.handlePosition(position));
 
     }

@@ -24,6 +24,7 @@ import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Position;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -192,7 +193,7 @@ public class FilterHandler extends BaseDataHandler {
 
             LOGGER.info(message.toString());
 
-            if (filterType.indexOf("Zero") != -1) {
+            if (filterType.indexOf("Zero") != -1 || !position.getValid()) {
                 return false;
             }
             return true;
@@ -206,7 +207,7 @@ public class FilterHandler extends BaseDataHandler {
         if (filter(position)) {
             return null;
         }
-        if (filterZero(position)) {
+        if (filterZero(position) || !position.getValid()) {
             Position last = null;
             if (Context.getIdentityManager() != null) {
                 last = Context.getIdentityManager().getLastPosition(position.getDeviceId());
@@ -220,6 +221,7 @@ public class FilterHandler extends BaseDataHandler {
                     position.setServerTime(last.getServerTime());
                     position.setDeviceTime(last.getDeviceTime());
                     clonePosition(position, last);
+                    position.setValid(true);
                     position.setAddress(last.getAddress() == null ? "" : last.getAddress());
                     position.setAccuracy(last.getAccuracy());
                     position.setNetwork(last.getNetwork());
@@ -230,8 +232,16 @@ public class FilterHandler extends BaseDataHandler {
                     attr.put("ZeroPosition", "Head Office");
                     attr.putAll(position.getAttributes());
                     position.setAttributes(attr);
+                    position.setServerTime(new Date(0));
+                    position.setDeviceTime(new Date(0));
+                    position.setFixTime(new Date(0));
+                    position.setValid(true);
                     position.setLatitude(9.018015);
                     position.setLongitude(38.795576);
+                    position.setAltitude(0.0);
+                    position.setSpeed(0.0);
+                    position.setCourse(0.0);
+
                 }
             }
         }
