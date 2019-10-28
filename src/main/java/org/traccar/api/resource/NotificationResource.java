@@ -15,6 +15,7 @@
  */
 package org.traccar.api.resource;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
@@ -57,7 +58,8 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
 
     @POST
     @Path("test")
-    public Response testMessage() throws MessageException, InterruptedException {
+    public Response testMessage()
+            throws MessageException, InterruptedException, UnsupportedEncodingException {
         for (Typed method : Context.getNotificatorManager().getAllNotificatorTypes()) {
             Context.getNotificatorManager()
                     .getNotificator(method.getType()).sendSync(getUserId(), new Event("test", 0), null);
@@ -68,7 +70,7 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
     @POST
     @Path("test/{notificator}")
     public Response testMessage(@PathParam("notificator") String notificator)
-            throws MessageException, InterruptedException {
+            throws MessageException, InterruptedException, UnsupportedEncodingException {
         Context.getNotificatorManager().getNotificator(notificator).sendSync(getUserId(), new Event("test", 0), null);
         return Response.noContent().build();
     }

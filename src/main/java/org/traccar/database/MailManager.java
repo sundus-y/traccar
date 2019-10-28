@@ -33,6 +33,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Properties;
 
@@ -88,14 +89,14 @@ public final class MailManager {
     }
 
     public void sendMessage(
-            long userId, String subject, String body) throws MessagingException {
+            long userId, String subject, String body) throws MessagingException, UnsupportedEncodingException {
         sendMessage(userId, subject, body, null);
     }
 
     public void sendMessage(
-            long userId, String subject, String body, MimeBodyPart attachment) throws MessagingException {
+            long userId, String to, String subject,
+            String body, MimeBodyPart attachment) throws MessagingException, UnsupportedEncodingException {
         User user = Context.getPermissionsManager().getUser(userId);
-
         Properties properties = null;
         if (!Context.getConfig().getBoolean("mail.smtp.ignoreUserConfig")) {
             properties = getProperties(new PropertiesProvider(user));
@@ -113,11 +114,12 @@ public final class MailManager {
         MimeMessage message = new MimeMessage(session);
 
         String from = properties.getProperty("mail.smtp.from");
+        String alias = properties.getProperty("mail.smtp.from.alias");
         if (from != null) {
-            message.setFrom(new InternetAddress(from));
+            message.setFrom(new InternetAddress(from, alias));
         }
 
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
         message.setSubject(subject);
         message.setSentDate(new Date());
 
@@ -142,6 +144,13 @@ public final class MailManager {
                     properties.getProperty("mail.smtp.password"));
             transport.sendMessage(message, message.getAllRecipients());
         }
+    }
+
+    public void sendMessage(
+            long userId, String subject,
+            String body, MimeBodyPart attachment) throws MessagingException, UnsupportedEncodingException {
+        User user = Context.getPermissionsManager().getUser(userId);
+        sendMessage(userId, user.getEmail(), subject, body, attachment);
     }
 
 }

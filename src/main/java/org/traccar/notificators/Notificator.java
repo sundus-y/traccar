@@ -22,6 +22,8 @@ import org.traccar.model.Event;
 import org.traccar.model.Position;
 import org.traccar.notification.MessageException;
 
+import java.io.UnsupportedEncodingException;
+
 public abstract class Notificator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Notificator.class);
@@ -31,7 +33,7 @@ public abstract class Notificator {
             public void run() {
                 try {
                     sendSync(userId, event, position);
-                } catch (MessageException | InterruptedException error) {
+                } catch (MessageException | InterruptedException | UnsupportedEncodingException error) {
                     LOGGER.warn("Event send error", error);
                 }
             }
@@ -39,6 +41,6 @@ public abstract class Notificator {
     }
 
     public abstract void sendSync(long userId, Event event, Position position)
-        throws MessageException, InterruptedException;
+        throws MessageException, InterruptedException, UnsupportedEncodingException;
 
 }

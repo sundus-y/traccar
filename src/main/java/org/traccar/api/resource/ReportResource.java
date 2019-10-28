@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.traccar.Context;
 import org.traccar.api.BaseResource;
 import org.traccar.helper.DateUtil;
+import org.traccar.model.Device;
 import org.traccar.model.Event;
 import org.traccar.model.Position;
 import org.traccar.reports.Devices;
@@ -52,9 +53,6 @@ import org.traccar.reports.model.StopReport;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.reports.model.TripReport;
 
-import org.traccar.model.Device;
-
-
 @Path("reports")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -63,7 +61,7 @@ public class ReportResource extends BaseResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportResource.class);
 
     private static final String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    private static final String CONTENT_DISPOSITION_VALUE_XLSX = "attachment; filename=report.xlsx";
+    private static final String CONTENT_DISPOSITION_BASE = "attachment; filename=";
 
     private interface ReportExecutor {
         void execute(ByteArrayOutputStream stream) throws SQLException, IOException;
@@ -71,6 +69,11 @@ public class ReportResource extends BaseResource {
 
     private Response executeReport(
             long userId, boolean mail, ReportExecutor executor) throws SQLException, IOException {
+        return executeReport(userId, mail, executor, "report.xlsx");
+    }
+
+    private Response executeReport(
+            long userId, boolean mail, ReportExecutor executor, String fileName) throws SQLException, IOException {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         if (mail) {
             new Thread(() -> {
@@ -79,7 +82,7 @@ public class ReportResource extends BaseResource {
 
                     MimeBodyPart attachment = new MimeBodyPart();
 
-                    attachment.setFileName("report.xlsx");
+                    attachment.setFileName(fileName);
                     attachment.setDataHandler(new DataHandler(new ByteArrayDataSource(
                             stream.toByteArray(), "application/octet-stream")));
 
@@ -93,7 +96,36 @@ public class ReportResource extends BaseResource {
         } else {
             executor.execute(stream);
             return Response.ok(stream.toByteArray())
-                    .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_VALUE_XLSX).build();
+                    .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_BASE + fileName).build();
+        }
+    }
+
+    private Response executeGovReport(
+            long userId, boolean mail, ReportExecutor executor, String fileName) throws SQLException, IOException {
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (mail) {
+            new Thread(() -> {
+                try {
+                    executor.execute(stream);
+
+                    MimeBodyPart attachment = new MimeBodyPart();
+
+                    attachment.setFileName(fileName + ".xlsx");
+                    attachment.setDataHandler(new DataHandler(new ByteArrayDataSource(
+                            stream.toByteArray(), "application/octet-stream")));
+
+                    Context.getMailManager().sendMessage(
+                            userId, "senam.ahmed@hyundaiandkia.com", fileName + "(MONITOR.ETHOGPS.COM)",
+                            "The report is in the attachment.", attachment);
+                } catch (SQLException | IOException | MessagingException e) {
+                    LOGGER.warn("Report failed", e);
+                }
+            }).start();
+            return Response.noContent().build();
+        } else {
+            executor.execute(stream);
+            return Response.ok(stream.toByteArray())
+                    .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_BASE + fileName + ".xlsx").build();
         }
     }
 
@@ -225,6 +257,32 @@ public class ReportResource extends BaseResource {
         return executeReport(getUserId(), mail, stream -> {
             Devices.getExcel(stream, getUserId());
         });
+    }
+
+    @Path("group_devices")
+    @GET
+    @Produces(XLSX)
+    public Response getGroupDevicesExcel(
+            @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
+            @QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("mail") boolean mail)
+            throws SQLException, IOException {
+        return executeGovReport(getUserId(), mail, stream -> {
+            Devices.getGroupExcel(stream, getUserId(),
+                    deviceIds, groupIds, DateUtil.parseDate(from), DateUtil.parseDate(to));
+        }, "Group Device Report");
+    }
+
+    @Path("individual_devices")
+    @GET
+    @Produces(XLSX)
+    public Response getIndividualDevicesExcel(
+            @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
+            @QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("mail") boolean mail)
+            throws SQLException, IOException {
+        return executeGovReport(getUserId(), mail, stream -> {
+            Devices.getIndividualExcel(stream, getUserId(),
+                    deviceIds, groupIds, DateUtil.parseDate(from), DateUtil.parseDate(to));
+        }, "Individual Device Report");
     }
 
 }

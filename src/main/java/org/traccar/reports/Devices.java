@@ -29,7 +29,9 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class Devices {
 
@@ -52,10 +54,59 @@ public final class Devices {
             throws SQLException, IOException {
         Collection<Device> devices = getObjects(userId);
         String templatePath = Context.getConfig().getString("report.templatesPath",
-                "templates/export/");
+                "templates/export/devices.xlsx");
+        exportDevice(outputStream, userId, devices, templatePath);
+    }
+
+    public static void getGroupExcel(
+            OutputStream outputStream, long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
+            Date from, Date to) throws SQLException, IOException {
+        Set<Long> deviceIdsList = new HashSet<Long>(ReportUtils.getDeviceList(deviceIds, groupIds));
+        Collection<Device> devices = Context.getDeviceManager().getItems(deviceIdsList);
+
+        String templatePath = Context.getConfig().getString("report.templatesPath",
+                "templates/export/group_device_report.xlsx");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
         String reportDate = simpleDateFormat.format(new Date());
-        try (InputStream inputStream = new FileInputStream(templatePath + "/devices.xlsx")) {
+        AtomicReference<Boolean> hasMultipleGroups = new AtomicReference<>(false);
+        String groupName = devices.iterator().next().getGroupName();
+        devices.forEach((device -> {
+            if (device.getGroupName().compareToIgnoreCase(groupName) != 0) {
+                hasMultipleGroups.set(true);
+            }
+        }));
+        if (hasMultipleGroups.get()) {
+            throw new IllegalArgumentException("Devices from Multiple Group Selected.");
+        } else {
+            try (InputStream inputStream = new FileInputStream(templatePath)) {
+                org.jxls.common.Context jxlsContext = ReportUtils.initializeContext(userId);
+                jxlsContext.putVar("devices", devices);
+                jxlsContext.putVar("groupName", devices.iterator().next().getGroupName());
+                jxlsContext.putVar("devicesCount", devices.size());
+                jxlsContext.putVar("reportDate", reportDate);
+                JxlsHelper.getInstance().setUseFastFormulaProcessor(false)
+                        .processTemplate(inputStream, outputStream, jxlsContext);
+            }
+        }
+    }
+
+    public static void getIndividualExcel(
+            OutputStream outputStream, long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
+            Date from, Date to) throws SQLException, IOException {
+        Set<Long> deviceIdsList = new HashSet<Long>(ReportUtils.getDeviceList(deviceIds, groupIds));
+        Collection<Device> devices = Context.getDeviceManager().getItems(deviceIdsList);
+
+        String templatePath = Context.getConfig().getString("report.templatesPath",
+                "templates/export/individual_device_report.xlsx");
+        exportDevice(outputStream, userId, devices, templatePath);
+    }
+
+    private static void exportDevice(
+            OutputStream outputStream, long userId, Collection<Device> devices,
+            String templatePath) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+        String reportDate = simpleDateFormat.format(new Date());
+        try (InputStream inputStream = new FileInputStream(templatePath)) {
             org.jxls.common.Context jxlsContext = ReportUtils.initializeContext(userId);
             jxlsContext.putVar("devices", devices);
             jxlsContext.putVar("reportDate", reportDate);

@@ -24,11 +24,13 @@ import org.traccar.notification.MessageException;
 import org.traccar.notification.NotificationFormatter;
 
 import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 
 public final class NotificatorMail extends Notificator {
 
     @Override
-    public void sendSync(long userId, Event event, Position position) throws MessageException {
+    public void sendSync(long userId, Event event, Position position)
+            throws MessageException, UnsupportedEncodingException {
         try {
             FullMessage message = NotificationFormatter.formatFullMessage(userId, event, position);
             Context.getMailManager().sendMessage(userId, message.getSubject(), message.getBody());
