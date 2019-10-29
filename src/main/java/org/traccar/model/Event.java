@@ -141,7 +141,7 @@ public class Event extends Message {
         put("alarmOverspeed", "Overspeed");
         put("alarmFallDown", "Fall Down");
         put("alarmLowPower", "Low Power");
-        put("alarmLowBattery", "Low Battery");
+        put("alarmLowBattery", "Power Cut (L)");
         put("alarmFault", "Fault");
         put("alarmPowerOff", "Power Disconnected");
         put("alarmPowerOn", "Power Connected");
@@ -162,6 +162,7 @@ public class Event extends Message {
         put("alarmLaneChange", "Lane Change");
         put("alarmFatigueDriving", "Fatigue Driving");
         put("alarmPowerCut", "Power Cut");
+        put("alarmPowerDisconnected", "Power Cut (D)");
         put("alarmPowerRestored", "Power Restored");
         put("alarmJamming", "Jamming");
         put("alarmTemperature", "Temperature");

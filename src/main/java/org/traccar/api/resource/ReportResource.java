@@ -176,7 +176,7 @@ public class ReportResource extends BaseResource {
         return executeReport(getUserId(), mail, stream -> {
             Events.getExcel(stream, getUserId(), deviceIds, groupIds, types,
                     DateUtil.parseDate(from), DateUtil.parseDate(to));
-        });
+        }, "Device Event Report");
     }
 
     @Path("summary")
