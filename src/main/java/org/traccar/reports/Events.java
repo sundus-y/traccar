@@ -109,18 +109,24 @@ public final class Events {
             for (Event event : events) {
                 checkEventTimeout(result, event);
             }
-            DeviceReport deviceEvents = new DeviceReport();
-            Device device = Context.getIdentityManager().getById(deviceId);
-            deviceEvents.setDeviceName(device.getName());
-            sheetNames.add(WorkbookUtil.createSafeSheetName(deviceEvents.getDeviceName()));
-            if (device.getGroupId() != 0) {
-                Group group = Context.getGroupsManager().getById(device.getGroupId());
-                if (group != null) {
-                    deviceEvents.setGroupName(group.getName());
+            if (result.size() > 0) {
+                DeviceReport deviceEvents = new DeviceReport();
+                Device device = Context.getIdentityManager().getById(deviceId);
+                deviceEvents.setDevice(device);
+                deviceEvents.setDeviceName(device.getName());
+                sheetNames.add(WorkbookUtil.createSafeSheetName(deviceEvents.getDeviceName()));
+                if (device.getGroupId() != 0) {
+                    Group group = Context.getGroupsManager().getById(device.getGroupId());
+                    if (group != null) {
+                        deviceEvents.setGroupName(group.getName());
+                    }
                 }
+                deviceEvents.setObjects(result);
+                devicesEvents.add(deviceEvents);
             }
-            deviceEvents.setObjects(result);
-            devicesEvents.add(deviceEvents);
+        }
+        if (devicesEvents.size() == 0) {
+            throw new IllegalArgumentException("No events for the given devices and time period.");
         }
         String templatePath = Context.getConfig().getString("report.templatesPath",
                 "templates/export/");

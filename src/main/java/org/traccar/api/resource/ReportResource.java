@@ -94,7 +94,11 @@ public class ReportResource extends BaseResource {
             }).start();
             return Response.noContent().build();
         } else {
-            executor.execute(stream);
+            try {
+                executor.execute(stream);
+            } catch (IllegalArgumentException exception) {
+                return Response.status(404, exception.getMessage()).build();
+            }
             return Response.ok(stream.toByteArray())
                     .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_BASE + fileName).build();
         }

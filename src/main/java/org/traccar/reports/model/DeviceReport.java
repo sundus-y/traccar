@@ -16,11 +16,23 @@
  */
 package org.traccar.reports.model;
 
+import org.traccar.model.Device;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class DeviceReport {
+
+    private Device device;
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
 
     private String deviceName;
 

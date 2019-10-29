@@ -92,7 +92,7 @@ public class HuabaoProtocolDecoder extends BaseProtocolDecoder {
                 || BitUtil.check(value, 10) || BitUtil.check(value, 11)) {
             return Position.ALARM_FAULT;
         }
-        if (BitUtil.check(value, 8)) {
+        if (BitUtil.check(value, 8) || BitUtil.check(value, 7)) {
             return Position.ALARM_POWER_OFF;
         }
         if (BitUtil.check(value, 20)) {
