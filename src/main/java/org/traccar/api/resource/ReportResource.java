@@ -20,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -49,6 +51,7 @@ import org.traccar.reports.Summary;
 import org.traccar.reports.Route;
 import org.traccar.reports.Stops;
 import org.traccar.reports.Trips;
+import org.traccar.reports.ReportUtils;
 import org.traccar.reports.model.StopReport;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.reports.model.TripReport;
@@ -105,8 +108,11 @@ public class ReportResource extends BaseResource {
     }
 
     private Response executeGovReport(
-            long userId, boolean mail, ReportExecutor executor, String fileName) throws SQLException, IOException {
+            long userId, boolean mail, ReportExecutor executor,
+            String fileName, Boolean isZip) throws SQLException, IOException {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        String fileExt = isZip ? ".zip" : ".xlsx";
+        String fileHeader = isZip ? "application/zip, application/octet-stream" : "application/octet-stream";
         if (mail) {
             new Thread(() -> {
                 try {
@@ -114,13 +120,17 @@ public class ReportResource extends BaseResource {
 
                     MimeBodyPart attachment = new MimeBodyPart();
 
-                    attachment.setFileName(fileName + ".xlsx");
+                    attachment.setFileName(fileName + fileExt);
                     attachment.setDataHandler(new DataHandler(new ByteArrayDataSource(
                             stream.toByteArray(), "application/octet-stream")));
-
+                    String govEmail = Context.getConfig().getString("custom.govEmail");
                     Context.getMailManager().sendMessage(
-                            userId, "senam.ahmed@hyundaiandkia.com", fileName + "(MONITOR.ETHOGPS.COM)",
-                            "The report is in the attachment.", attachment);
+                            userId, govEmail, fileName + "(monitor.ethiogps.com)",
+                            "Please find attached the report named: "
+                                    + fileName
+                                    + "<br><br> If you have any questions please reply back to this "
+                                    + "email or call use at +251911-206359."
+                                    + "<br><br><br> Thank you, <br> EthioGPS", attachment);
                 } catch (SQLException | IOException | MessagingException e) {
                     LOGGER.warn("Report failed", e);
                 }
@@ -129,8 +139,13 @@ public class ReportResource extends BaseResource {
         } else {
             executor.execute(stream);
             return Response.ok(stream.toByteArray())
-                    .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_BASE + fileName + ".xlsx").build();
+                    .header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_BASE + fileName + fileExt).build();
         }
+    }
+
+    private Response executeGovReport(
+            long userId, boolean mail, ReportExecutor executor, String fileName) throws SQLException, IOException {
+        return executeGovReport(userId, mail, executor, fileName, false);
     }
 
     @Path("route")
@@ -273,7 +288,7 @@ public class ReportResource extends BaseResource {
         return executeGovReport(getUserId(), mail, stream -> {
             Devices.getGroupExcel(stream, getUserId(),
                     deviceIds, groupIds, DateUtil.parseDate(from), DateUtil.parseDate(to));
-        }, "Group Device Report");
+        }, "Group_Device_Report");
     }
 
     @Path("individual_devices")
@@ -283,10 +298,18 @@ public class ReportResource extends BaseResource {
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
             @QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("mail") boolean mail)
             throws SQLException, IOException {
-        return executeGovReport(getUserId(), mail, stream -> {
-            Devices.getIndividualExcel(stream, getUserId(),
-                    deviceIds, groupIds, DateUtil.parseDate(from), DateUtil.parseDate(to));
-        }, "Individual Device Report");
+        Set<Long> deviceIdsList = new HashSet<Long>(ReportUtils.getDeviceList(deviceIds, groupIds));
+        Collection<Device> devices = Context.getDeviceManager().getItems(deviceIdsList);
+        Device device = devices.iterator().next();
+        if (devices.size() > 1) {
+            return executeGovReport(getUserId(), mail, stream -> {
+                Devices.getIndividualExcelZip(stream, getUserId(), devices);
+            }, devices.size() + "-Individual_Device_Reports", true);
+        } else {
+            return executeGovReport(getUserId(), mail, stream -> {
+                Devices.getIndividualExcel(stream, getUserId(), device);
+            }, device.getUniqueId().replaceAll("[^a-zA-Z0-9.\\-]", "_") + "_Individual_Device_Report");
+        }
     }
 
 }

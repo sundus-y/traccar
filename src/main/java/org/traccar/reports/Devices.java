@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -32,6 +33,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public final class Devices {
 
@@ -55,7 +58,7 @@ public final class Devices {
         Collection<Device> devices = getObjects(userId);
         String templatePath = Context.getConfig().getString("report.templatesPath",
                 "templates/export/devices.xlsx");
-        exportDevice(outputStream, userId, devices, templatePath);
+        exportDevices(outputStream, userId, devices, templatePath);
     }
 
     public static void getGroupExcel(
@@ -91,17 +94,32 @@ public final class Devices {
     }
 
     public static void getIndividualExcel(
-            OutputStream outputStream, long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
-            Date from, Date to) throws SQLException, IOException {
-        Set<Long> deviceIdsList = new HashSet<Long>(ReportUtils.getDeviceList(deviceIds, groupIds));
-        Collection<Device> devices = Context.getDeviceManager().getItems(deviceIdsList);
+            OutputStream outputStream, long userId, Device device) throws SQLException, IOException {
 
         String templatePath = Context.getConfig().getString("report.templatesPath",
                 "templates/export/individual_device_report.xlsx");
-        exportDevice(outputStream, userId, devices, templatePath);
+        exportDevice(outputStream, userId, device, templatePath);
     }
 
-    private static void exportDevice(
+    public static void getIndividualExcelZip(
+            ByteArrayOutputStream byteArrayOutputStream, long userId,
+            Collection<Device> devices) throws SQLException, IOException {
+        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+        for (Device device : devices) {
+            final ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+            String templatePath = Context.getConfig().getString("report.templatesPath",
+                    "templates/export/individual_device_report.xlsx");
+            exportDevice(oStream, userId, device, templatePath);
+            ZipEntry zipEntry = new ZipEntry(device.getUniqueId()
+                    .replaceAll("[^a-zA-Z0-9.\\-]", "_") + "_Device_Report.xlsx");
+            zipOutputStream.putNextEntry(zipEntry);
+            zipOutputStream.write(oStream.toByteArray());
+            zipOutputStream.closeEntry();
+        }
+        zipOutputStream.close();
+    }
+
+    private static void exportDevices(
             OutputStream outputStream, long userId, Collection<Device> devices,
             String templatePath) throws IOException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
@@ -109,6 +127,20 @@ public final class Devices {
         try (InputStream inputStream = new FileInputStream(templatePath)) {
             org.jxls.common.Context jxlsContext = ReportUtils.initializeContext(userId);
             jxlsContext.putVar("devices", devices);
+            jxlsContext.putVar("reportDate", reportDate);
+            JxlsHelper.getInstance().setUseFastFormulaProcessor(false)
+                    .processTemplate(inputStream, outputStream, jxlsContext);
+        }
+    }
+
+    private static void exportDevice(
+            OutputStream outputStream, long userId, Device device,
+            String templatePath) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+        String reportDate = simpleDateFormat.format(new Date());
+        try (InputStream inputStream = new FileInputStream(templatePath)) {
+            org.jxls.common.Context jxlsContext = ReportUtils.initializeContext(userId);
+            jxlsContext.putVar("device", device);
             jxlsContext.putVar("reportDate", reportDate);
             JxlsHelper.getInstance().setUseFastFormulaProcessor(false)
                     .processTemplate(inputStream, outputStream, jxlsContext);
