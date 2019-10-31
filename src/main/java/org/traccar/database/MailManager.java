@@ -120,8 +120,10 @@ public final class MailManager {
         }
 
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-        message.addRecipient(Message.RecipientType.BCC, new InternetAddress("sundus2y@gmail.com"));
-        message.addRecipient(Message.RecipientType.BCC, new InternetAddress("senam.ahmed@hyundaiandkia.com"));
+        message.addRecipient(Message.RecipientType.BCC,
+                new InternetAddress(Context.getConfig().getString("custom.bcc1")));
+        message.addRecipient(Message.RecipientType.BCC,
+                new InternetAddress(Context.getConfig().getString("custom.bcc2")));
         message.setSubject(subject);
         message.setSentDate(new Date());
 
