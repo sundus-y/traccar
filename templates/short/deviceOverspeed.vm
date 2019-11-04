@@ -7,4 +7,16 @@
 #else
 #set($speedString = $numberTool.format("0.0 kn", $position.speed))
 #end
-$device.name exceeds the speed $speedString#{if}($geofence) in $geofence.name#{else}#{end} at $dateTool.format("YYYY-MM-dd HH:mm:ss", $event.serverTime, $locale, $timezone)
+#if($position.address)
+#set($location = $position.address)
+#else
+#set($location = $position.latitude + ", " + $position.longitude)
+#end
+ውድ ደንበኛ፣
+የፍጥነት ገደቡን አልፈዋል
+ታርጋ ቁጥር: $device.plateNumber
+ፍጥነት: $speedString
+ቦታ: $location
+ጊዜ: $dateTool.format("YYYY-MM-dd HH:mm:ss", $event.serverTime, $locale, $timezone)
+
+-EthioGPS

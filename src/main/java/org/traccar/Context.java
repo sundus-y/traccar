@@ -18,6 +18,11 @@ package org.traccar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import org.apache.velocity.app.VelocityEngine;
 import org.eclipse.jetty.util.URIUtil;
 import org.slf4j.Logger;
@@ -66,6 +71,8 @@ import org.traccar.web.WebServer;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.ext.ContextResolver;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -238,6 +245,12 @@ public final class Context {
         return smsManager;
     }
 
+    private static Firestore smsAppDb;
+
+    public static Firestore getSmsAppDb() {
+        return smsAppDb;
+    }
+
     private static TripsConfig tripsConfig;
 
     public static TripsConfig getTripsConfig() {
@@ -326,6 +339,21 @@ public final class Context {
                 smsManager = (SmsManager) Class.forName(smsManagerClass).newInstance();
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 LOGGER.warn("Error loading SMS Manager class : " + smsManagerClass, e);
+            }
+        }
+
+        if (config.getBoolean("smsApp.enable")) {
+            try {
+                InputStream serviceAccount = new FileInputStream("config/firebase/serviceAccount.json");
+                GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setCredentials(credentials)
+                        .build();
+                FirebaseApp.initializeApp(options);
+
+                smsAppDb = FirestoreClient.getFirestore();
+            } catch (Exception e) {
+                LOGGER.warn("Error setting up smsApp Config : " + smsAppDb, e);
             }
         }
 

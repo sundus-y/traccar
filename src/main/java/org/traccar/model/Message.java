@@ -15,12 +15,22 @@
  */
 package org.traccar.model;
 
+import org.traccar.Context;
+import org.traccar.database.QueryIgnore;
+
 public class Message extends ExtendedModel {
 
     private long deviceId;
 
     public long getDeviceId() {
         return deviceId;
+    }
+
+    private Device device;
+
+    @QueryIgnore
+    public Device getDevice() {
+        return Context.getDeviceManager().getById(this.deviceId);
     }
 
     public void setDeviceId(long deviceId) {

@@ -10,3 +10,5 @@ nbactions.xml
 .gradle
 out
 build
+/config/firebase/serviceAccount.json
+/logs/tracker-server.log
