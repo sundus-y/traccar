@@ -41,14 +41,16 @@ public class NotificatorSmsApp extends Notificator {
 
     @Override
     public void sendSync(long userId, Event event, Position position) {
+        boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
+        String queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
+        String metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
 
         String msg = NotificationFormatter.formatShortMessage(userId, event, position);
         String to = event.getDeviceId() == 0 ? "000" : event.getDevice().getPhone();
 
         WriteBatch batch = Context.getSmsAppDb().batch();
-
         DocumentReference queuedMessageRef = Context.getSmsAppDb()
-                .collection("QueuedMessages")
+                .collection(queueCollectionName)
                 .document();
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("msg", msg);
@@ -60,8 +62,8 @@ public class NotificatorSmsApp extends Notificator {
         batch.set(queuedMessageRef, messageData);
 
         DocumentReference queuedMessagesCountRef = Context.getSmsAppDb()
-                .collection("MetaData")
-                .document("QueuedMessages");
+                .collection(metaDataCollectionName)
+                .document(queueCollectionName);
         FieldValue inc = FieldValue.increment(1);
         Map<String, Object> countData = new HashMap<>();
         countData.put("count", inc);

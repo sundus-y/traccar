@@ -145,6 +145,11 @@ public class Position extends Message {
     public Position() {
     }
 
+    public Position(long longitude, long latitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
     public Position(String protocol) {
         this.protocol = protocol;
         this.serverTime = new Date();

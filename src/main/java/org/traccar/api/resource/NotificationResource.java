@@ -31,6 +31,7 @@ import org.traccar.Context;
 import org.traccar.api.ExtendedObjectResource;
 import org.traccar.model.Event;
 import org.traccar.model.Notification;
+import org.traccar.model.Position;
 import org.traccar.model.Typed;
 import org.traccar.notification.MessageException;
 
@@ -62,7 +63,8 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
             throws MessageException, InterruptedException, UnsupportedEncodingException {
         for (Typed method : Context.getNotificatorManager().getAllNotificatorTypes()) {
             Context.getNotificatorManager()
-                    .getNotificator(method.getType()).sendSync(getUserId(), new Event("test", 0), null);
+                    .getNotificator(method.getType())
+                    .sendSync(getUserId(), new Event("test", 0), new Position(0, 0));
         }
         return Response.noContent().build();
     }
@@ -71,7 +73,9 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
     @Path("test/{notificator}")
     public Response testMessage(@PathParam("notificator") String notificator)
             throws MessageException, InterruptedException, UnsupportedEncodingException {
-        Context.getNotificatorManager().getNotificator(notificator).sendSync(getUserId(), new Event("test", 0), null);
+        Context.getNotificatorManager()
+                .getNotificator(notificator)
+                .sendSync(getUserId(), new Event("test", 0), new Position(0, 0));
         return Response.noContent().build();
     }
 
