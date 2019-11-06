@@ -16,9 +16,15 @@
 package org.traccar.model;
 
 import org.apache.commons.lang.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.traccar.Context;
+import org.traccar.Main;
 import org.traccar.database.QueryIgnore;
 
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,6 +33,8 @@ import java.util.stream.Collectors;
 import static org.traccar.helper.UnitsConverter.kphFromKnots;
 
 public class Event extends Message {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public Event(String type, long deviceId, long positionId) {
         this(type, deviceId);
@@ -130,6 +138,27 @@ public class Event extends Message {
             text += " (Speed Limit: " + limit + "km/h)";
         }
         return text;
+    }
+
+    public boolean isDuplicateSpeeding() {
+        try {
+            Collection<Event> recentEvents = Context.getDataManager()
+                    .getRecentSpeedingEvents(this.getId(), this.getDeviceId(), this.getServerTime());
+            return !recentEvents.isEmpty();
+        } catch (SQLException e) {
+            LOGGER.error("Error Finding Duplicate Speeding Events", e);
+            return true;
+        }
+    }
+
+    private boolean smsNotificationSent;
+
+    public boolean getSmsNotificationSent() {
+        return this.smsNotificationSent;
+    }
+
+    public void setSmsNotificationSent(boolean smsNotificationSent) {
+        this.smsNotificationSent = smsNotificationSent;
     }
 
     private Map<String, String> alarmMap = new LinkedHashMap<String, String>() {{

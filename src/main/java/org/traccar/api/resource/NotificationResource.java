@@ -16,7 +16,12 @@
 package org.traccar.api.resource;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -24,9 +29,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import org.traccar.Context;
 import org.traccar.api.ExtendedObjectResource;
 import org.traccar.model.Event;
@@ -77,6 +85,29 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                 .getNotificator(notificator)
                 .sendSync(getUserId(), new Event("test", 0), new Position(0, 0));
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("sms_app")
+    public Collection<Map<String, Object>> smsAppNotifications(
+            @QueryParam("deviceId") long deviceId,
+            @QueryParam("from") long from,
+            @QueryParam("to") long to)
+            throws ExecutionException, InterruptedException {
+        boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
+        String sentCollection = smsAppProd ? "SentMessages" : "Demo-SentMessages";
+        Collection<Map<String, Object>> response = new ArrayList<Map<String, Object>>();
+        Date fromDate = new Date(from);
+        Date toDate = new Date(to);
+        List<QueryDocumentSnapshot> documents = Context.getSmsAppDb().collection(sentCollection)
+                .whereEqualTo("deviceId", deviceId)
+                .whereGreaterThan("sentTimestamp", fromDate)
+                .whereLessThanOrEqualTo("sentTimestamp", toDate)
+                .get().get().getDocuments();
+        for (DocumentSnapshot doc : documents) {
+            response.add(doc.getData());
+        }
+        return response;
     }
 
 }

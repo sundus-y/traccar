@@ -359,6 +359,14 @@ public class DataManager {
                 .executeQuery(Position.class);
     }
 
+    public Collection<Event> getRecentSpeedingEvents(long eventId, long deviceId, Date serverTime) throws SQLException {
+        return QueryBuilder.create(dataSource, getQuery("database.selectRecentSpeedingEvents"))
+                .setLong("deviceId", deviceId)
+                .setLong("eventId", eventId)
+                .setDate("serverTime", serverTime)
+                .executeQuery(Event.class);
+    }
+
     public void clearHistory() throws SQLException {
         long historyDays = config.getInteger("database.historyDays");
         if (historyDays != 0) {
