@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -37,11 +39,13 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import org.traccar.Context;
 import org.traccar.api.ExtendedObjectResource;
+import org.traccar.model.Device;
 import org.traccar.model.Event;
 import org.traccar.model.Notification;
 import org.traccar.model.Position;
 import org.traccar.model.Typed;
 import org.traccar.notification.MessageException;
+import org.traccar.notificators.NotificatorSmsApp;
 
 
 @Path("notifications")
@@ -108,6 +112,49 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
             response.add(doc.getData());
         }
         return response;
+    }
+
+    @POST
+    @Path("send_sms")
+    public Response smsAppNotifications(LinkedHashMap<String, Object> entity)
+            throws ExecutionException, InterruptedException {
+        ArrayList<Integer> deviceIds = (ArrayList<Integer>) entity.get("deviceIds");
+        ArrayList<Integer> groupIds = (ArrayList<Integer>) entity.get("groupIds");
+        String phone = (String) entity.get("phone");
+        String msg = (String) entity.get("msg");
+        NotificatorSmsApp smsNotificator = (NotificatorSmsApp) Context.getNotificatorManager().getNotificator("smsApp");
+        if (deviceIds != null && !deviceIds.isEmpty()) {
+            List<Long> longList = new ArrayList<Long>();
+            for (Integer i: deviceIds) {
+                longList.add(i.longValue());
+            }
+            HashSet<Long> result = new HashSet<>();
+            for (long deviceId : longList) {
+                Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
+                result.add(deviceId);
+            }
+            for (Device device : Context.getDeviceManager().getItems(result)) {
+                smsNotificator.sendSMS(device.getPhone(), msg, "Selected Devices SMS", null);
+            }
+        } else if (groupIds != null && !groupIds.isEmpty()) {
+            List<Long> longList = new ArrayList<Long>();
+            for (Integer i: groupIds) {
+                longList.add(i.longValue());
+            }
+            HashSet<Long> result = new HashSet<>();
+            for (long groupId : groupIds) {
+                for (long deviceId : Context.getPermissionsManager().getGroupDevices(groupId)) {
+                    Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
+                    result.add(deviceId);
+                }
+            }
+            for (Device device : Context.getDeviceManager().getItems(result)) {
+                smsNotificator.sendSMS(device.getPhone(), msg, "Selected Groups SMS", null);
+            }
+        } else if (phone != null && !phone.isEmpty()) {
+            smsNotificator.sendSMS(phone, msg, "Direct SMS", null);
+        }
+        return Response.status(200, "Message Queued").build();
     }
 
 }

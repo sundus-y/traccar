@@ -50,40 +50,13 @@ public class NotificatorSmsApp extends Notificator {
             } catch (SQLException e) {
                 LOGGER.error("Error Updating Event", e);
             }
-            boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
-            String queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
-            String metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
-
             String msg = NotificationFormatter.formatShortMessage(userId, event, position);
-            String to = event.getDeviceId() == 0 ? "000" : event.getDevice().getPhone();
-
-            WriteBatch batch = Context.getSmsAppDb().batch();
-            DocumentReference queuedMessageRef = Context.getSmsAppDb()
-                    .collection(queueCollectionName)
-                    .document();
-            Map<String, Object> messageData = new HashMap<>();
-            messageData.put("msg", msg);
-            messageData.put("phone", to);
-            messageData.put("eventType", event.getType());
-            messageData.put("location", position.getAddress());
-            messageData.put("deviceId", event.getDeviceId());
-            messageData.put("queuedTimestamp", FieldValue.serverTimestamp());
-            batch.set(queuedMessageRef, messageData);
-
-            DocumentReference queuedMessagesCountRef = Context.getSmsAppDb()
-                    .collection(metaDataCollectionName)
-                    .document(queueCollectionName);
-            FieldValue inc = FieldValue.increment(1);
-            Map<String, Object> countData = new HashMap<>();
-            countData.put("count", inc);
-            batch.set(queuedMessagesCountRef, countData, SetOptions.merge());
-
-            ApiFuture<List<WriteResult>> response = batch.commit();
-            try {
-                LOGGER.info(response.toString());
-            } catch (Exception e) {
-                LOGGER.info(e.getMessage());
-            }
+            String phone = event.getDeviceId() == 0 ? "000" : event.getDevice().getPhone();
+            Map<String, Object> details = new HashMap<>();
+            details.put("eventType", event.getType());
+            details.put("location", position.getAddress());
+            details.put("deviceId", event.getDeviceId());
+            sendSMS(phone, msg, "Alert Notification", details);
         }
     }
 
@@ -91,5 +64,39 @@ public class NotificatorSmsApp extends Notificator {
     public void sendAsync(long userId, Event event, Position position) {
         sendSync(userId, event, position);
     }
+
+    public void sendSMS(String phone, String msg, String msgType, Map<String, Object> otherDetails) {
+        boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
+        String queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
+        String metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
+
+        WriteBatch batch = Context.getSmsAppDb().batch();
+        DocumentReference queuedMessageRef = Context.getSmsAppDb()
+                .collection(queueCollectionName)
+                .document();
+        Map<String, Object> messageData = new HashMap<>();
+        messageData.put("phone", phone);
+        messageData.put("msg", msg);
+        messageData.put("msgType", msgType);
+        messageData.put("otherDetails", otherDetails);
+        messageData.put("queuedTimestamp", FieldValue.serverTimestamp());
+        batch.set(queuedMessageRef, messageData);
+
+        DocumentReference queuedMessagesCountRef = Context.getSmsAppDb()
+                .collection(metaDataCollectionName)
+                .document(queueCollectionName);
+        FieldValue inc = FieldValue.increment(1);
+        Map<String, Object> countData = new HashMap<>();
+        countData.put("count", inc);
+        batch.set(queuedMessagesCountRef, countData, SetOptions.merge());
+
+        ApiFuture<List<WriteResult>> response = batch.commit();
+        try {
+            LOGGER.info(response.toString());
+        } catch (Exception e) {
+            LOGGER.info(e.getMessage());
+        }
+    }
+
 
 }
