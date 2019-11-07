@@ -56,7 +56,7 @@ public class NotificatorSmsApp extends Notificator {
             details.put("eventType", event.getType());
             details.put("location", position.getAddress());
             details.put("deviceId", event.getDeviceId());
-            sendSMS(phone, msg, "Alert Notification", details);
+            sendSMS(String.valueOf(event.getDeviceId()), phone, msg, "Alert Notification", details);
         }
     }
 
@@ -65,7 +65,7 @@ public class NotificatorSmsApp extends Notificator {
         sendSync(userId, event, position);
     }
 
-    public void sendSMS(String phone, String msg, String msgType, Map<String, Object> otherDetails) {
+    public void sendSMS(String id, String phone, String msg, String msgType, Map<String, Object> otherDetails) {
         boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
         String queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
         String metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
@@ -75,6 +75,7 @@ public class NotificatorSmsApp extends Notificator {
                 .collection(queueCollectionName)
                 .document();
         Map<String, Object> messageData = new HashMap<>();
+        messageData.put("id", id);
         messageData.put("phone", phone);
         messageData.put("msg", msg);
         messageData.put("msgType", msgType);

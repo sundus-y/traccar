@@ -134,7 +134,11 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                 result.add(deviceId);
             }
             for (Device device : Context.getDeviceManager().getItems(result)) {
-                smsNotificator.sendSMS(device.getPhone(), msg, "Selected Devices SMS", null);
+                smsNotificator.sendSMS(String.valueOf(device.getId()),
+                        device.getPhone(),
+                        msg,
+                        "Selected Devices SMS",
+                        null);
             }
         } else if (groupIds != null && !groupIds.isEmpty()) {
             List<Long> longList = new ArrayList<Long>();
@@ -149,10 +153,14 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                 }
             }
             for (Device device : Context.getDeviceManager().getItems(result)) {
-                smsNotificator.sendSMS(device.getPhone(), msg, "Selected Groups SMS", null);
+                smsNotificator.sendSMS(String.valueOf(device.getId()),
+                        device.getPhone(),
+                        msg,
+                        "Selected Groups SMS",
+                        null);
             }
         } else if (phone != null && !phone.isEmpty()) {
-            smsNotificator.sendSMS(phone, msg, "Direct SMS", null);
+            smsNotificator.sendSMS(phone, phone, msg, "Direct SMS", null);
         }
         return Response.status(200, "Message Queued").build();
     }
