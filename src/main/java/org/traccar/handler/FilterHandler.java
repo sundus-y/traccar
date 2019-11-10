@@ -159,7 +159,20 @@ public class FilterHandler extends BaseDataHandler {
             filterType.append("Zero (" + position.getLatitude() + "," + position.getLongitude() + ") ");
         }
         if (filterDuplicate(position, last) && !skipLimit(position, last) && !skipAttributes(position)) {
-            filterType.append("Duplicate (" + position.getLatitude() + "," + position.getLongitude() + ") ");
+            if (last != null) {
+                filterType.append("Duplicate-Curr (("
+                        + position.getServerTime() + "||" + position.getFixTime() + "),"
+                        + position.getLatitude() + "," + position.getLongitude() + ","
+                        + position.getSpeed() + ")");
+                filterType.append("Duplicate-Last (("
+                        + last.getServerTime() + "||" + last.getFixTime() + "),"
+                        + last.getLatitude() + "," + last.getLongitude() + ","
+                        + last.getSpeed() + ")");
+            } else {
+                filterType.append("Duplicate ("
+                        + position.getLatitude() + "," + position.getLongitude() + ","
+                        + position.getSpeed() + ") ");
+            }
         }
         if (filterFuture(position)) {
             filterType.append("Future (" + position.getLatitude() + "," + position.getLongitude() + ") ");
