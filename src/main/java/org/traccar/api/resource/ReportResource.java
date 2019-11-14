@@ -144,7 +144,8 @@ public class ReportResource extends BaseResource {
     }
 
     private Response executeGovReport(
-            long userId, boolean mail, ReportExecutor executor, String fileName, String emailSubject) throws SQLException, IOException {
+            long userId, boolean mail, ReportExecutor executor,
+            String fileName, String emailSubject) throws SQLException, IOException {
         return executeGovReport(userId, mail, executor, fileName, emailSubject, false);
     }
 
@@ -307,11 +308,13 @@ public class ReportResource extends BaseResource {
         if (devices.size() > 1) {
             return executeGovReport(getUserId(), mail, stream -> {
                 Devices.getIndividualExcelZip(stream, getUserId(), devices);
-            }, devices.size() + "-Individual_Device_Reports", devices.size() + "Devices - Individual Device Report", true);
+            }, devices.size() + "-Individual_Device_Reports",
+                    devices.size() + "Devices - Individual Device Report", true);
         } else {
             return executeGovReport(getUserId(), mail, stream -> {
                 Devices.getIndividualExcel(stream, getUserId(), device);
-            }, device.getUniqueId().replaceAll("[^a-zA-Z0-9.\\-]", "_") + "_Individual_Device_Report", device.getName() + " - Individual Device Report");
+            }, device.getUniqueId().replaceAll("[^a-zA-Z0-9.\\-]", "_")
+                    + "_Individual_Device_Report", device.getName() + " - Individual Device Report");
         }
     }
 
