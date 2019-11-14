@@ -243,6 +243,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         cachedDevice.setChassisNumber(device.getChassisNumber());
         cachedDevice.setSimNumber(device.getSimNumber());
         cachedDevice.setSimIccidNumber(device.getSimIccidNumber());
+        cachedDevice.setRegistrationSubCity(device.getRegistrationSubCity());
         if (!device.getUniqueId().equals(cachedDevice.getUniqueId())) {
             devicesByUniqueId.remove(cachedDevice.getUniqueId());
             cachedDevice.setUniqueId(device.getUniqueId());
