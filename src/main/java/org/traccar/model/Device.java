@@ -277,4 +277,14 @@ public class Device extends GroupedModel {
         Position position = deviceManager.getLastPosition(getId());
         return position == null ? "" : position.toString();
     }
+
+    private String registrationSubCity;
+
+    public String getRegistrationSubCity() {
+        return this.registrationSubCity;
+    }
+
+    public void setRegistrationSubCity(String registrationSubCity) {
+        this.registrationSubCity = registrationSubCity;
+    }
 }
