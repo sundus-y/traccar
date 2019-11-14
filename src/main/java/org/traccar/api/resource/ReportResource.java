@@ -109,7 +109,7 @@ public class ReportResource extends BaseResource {
 
     private Response executeGovReport(
             long userId, boolean mail, ReportExecutor executor,
-            String fileName, Boolean isZip) throws SQLException, IOException {
+            String fileName, String emailSubject, Boolean isZip) throws SQLException, IOException {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         String fileExt = isZip ? ".zip" : ".xlsx";
         String fileHeader = isZip ? "application/zip, application/octet-stream" : "application/octet-stream";
@@ -125,7 +125,7 @@ public class ReportResource extends BaseResource {
                             stream.toByteArray(), "application/octet-stream")));
                     String govEmail = Context.getConfig().getString("custom.govEmail");
                     Context.getMailManager().sendMessage(
-                            userId, govEmail, fileName + "(monitor.ethiogps.com)",
+                            userId, govEmail, emailSubject + "(monitor.ethiogps.com)",
                             "Please find attached the report named: "
                                     + fileName
                                     + "<br><br> If you have any questions please reply back to this "
@@ -144,8 +144,8 @@ public class ReportResource extends BaseResource {
     }
 
     private Response executeGovReport(
-            long userId, boolean mail, ReportExecutor executor, String fileName) throws SQLException, IOException {
-        return executeGovReport(userId, mail, executor, fileName, false);
+            long userId, boolean mail, ReportExecutor executor, String fileName, String emailSubject) throws SQLException, IOException {
+        return executeGovReport(userId, mail, executor, fileName, emailSubject, false);
     }
 
     @Path("route")
@@ -285,10 +285,13 @@ public class ReportResource extends BaseResource {
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
             @QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("mail") boolean mail)
             throws SQLException, IOException {
+        Set<Long> deviceIdsList = new HashSet<Long>(ReportUtils.getDeviceList(deviceIds, groupIds));
+        Collection<Device> devices = Context.getDeviceManager().getItems(deviceIdsList);
+        String groupName = devices.iterator().next().getGroupName();
         return executeGovReport(getUserId(), mail, stream -> {
             Devices.getGroupExcel(stream, getUserId(),
                     deviceIds, groupIds, DateUtil.parseDate(from), DateUtil.parseDate(to));
-        }, "Group_Device_Report");
+        }, "Group_Device_Report", groupName + " - Group Device Report");
     }
 
     @Path("individual_devices")
@@ -304,11 +307,11 @@ public class ReportResource extends BaseResource {
         if (devices.size() > 1) {
             return executeGovReport(getUserId(), mail, stream -> {
                 Devices.getIndividualExcelZip(stream, getUserId(), devices);
-            }, devices.size() + "-Individual_Device_Reports", true);
+            }, devices.size() + "-Individual_Device_Reports", devices.size() + "Devices - Individual Device Report", true);
         } else {
             return executeGovReport(getUserId(), mail, stream -> {
                 Devices.getIndividualExcel(stream, getUserId(), device);
-            }, device.getUniqueId().replaceAll("[^a-zA-Z0-9.\\-]", "_") + "_Individual_Device_Report");
+            }, device.getUniqueId().replaceAll("[^a-zA-Z0-9.\\-]", "_") + "_Individual_Device_Report", device.getName() + " - Individual Device Report");
         }
     }
 
