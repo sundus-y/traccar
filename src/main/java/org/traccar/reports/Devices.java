@@ -84,6 +84,7 @@ public final class Devices {
             try (InputStream inputStream = new FileInputStream(templatePath)) {
                 org.jxls.common.Context jxlsContext = ReportUtils.initializeContext(userId);
                 jxlsContext.putVar("devices", devices);
+                jxlsContext.putVar("device", devices.iterator().next());
                 jxlsContext.putVar("groupName", devices.iterator().next().getGroupName());
                 jxlsContext.putVar("devicesCount", devices.size());
                 jxlsContext.putVar("reportDate", reportDate);
