@@ -190,6 +190,34 @@ public class Device extends GroupedModel {
         }
     }
 
+    private Date membershipRenewalDate;
+
+    public Date getMembershipRenewalDate() {
+        if (membershipRenewalDate != null) {
+            return new Date(membershipRenewalDate.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    public void setMembershipRenewalDate(Date membershipRenewalDate) {
+        if (membershipRenewalDate != null) {
+            this.membershipRenewalDate = new Date(membershipRenewalDate.getTime());
+        } else {
+            this.membershipRenewalDate = null;
+        }
+    }
+
+    private String newPlateNumber;
+
+    public String getNewPlateNumber() {
+        return newPlateNumber;
+    }
+
+    public void setNewPlateNumber(String newPlateNumber) {
+        this.newPlateNumber = newPlateNumber;
+    }
+
     private String gender;
 
     public String getGender() {
