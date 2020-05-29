@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.Consumes;
@@ -122,47 +123,63 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
         ArrayList<Integer> groupIds = (ArrayList<Integer>) entity.get("groupIds");
         String phone = (String) entity.get("phone");
         String msg = (String) entity.get("msg");
+        String cmd = (String) entity.get("cmd");
+        String reason = (String) entity.get("reason");
         NotificatorSmsApp smsNotificator = (NotificatorSmsApp) Context.getNotificatorManager().getNotificator("smsApp");
-        if (deviceIds != null && !deviceIds.isEmpty()) {
-            List<Long> longList = new ArrayList<Long>();
-            for (Integer i: deviceIds) {
-                longList.add(i.longValue());
-            }
-            HashSet<Long> result = new HashSet<>();
-            for (long deviceId : longList) {
-                Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
-                result.add(deviceId);
-            }
-            for (Device device : Context.getDeviceManager().getItems(result)) {
-                smsNotificator.sendSMS(String.valueOf(device.getId()),
-                        device.getPhone(),
-                        msg,
-                        "Selected Devices SMS",
-                        null);
-            }
-        } else if (groupIds != null && !groupIds.isEmpty()) {
-            List<Long> longList = new ArrayList<Long>();
-            for (Integer i: groupIds) {
-                longList.add(i.longValue());
-            }
-            HashSet<Long> result = new HashSet<>();
-            for (long groupId : groupIds) {
-                for (long deviceId : Context.getPermissionsManager().getGroupDevices(groupId)) {
+        if (msg != null && !msg.isEmpty()) {
+            if (deviceIds != null && !deviceIds.isEmpty()) {
+                List<Long> longList = new ArrayList<Long>();
+                for (Integer i: deviceIds) {
+                    longList.add(i.longValue());
+                }
+                HashSet<Long> result = new HashSet<>();
+                for (long deviceId : longList) {
                     Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
                     result.add(deviceId);
                 }
+                for (Device device : Context.getDeviceManager().getItems(result)) {
+                    smsNotificator.sendSMS(String.valueOf(device.getId()),
+                            device.getPhone(),
+                            msg,
+                            "Selected Devices SMS",
+                            null);
+                }
+            } else if (groupIds != null && !groupIds.isEmpty()) {
+                List<Long> longList = new ArrayList<Long>();
+                for (Integer i: groupIds) {
+                    longList.add(i.longValue());
+                }
+                HashSet<Long> result = new HashSet<>();
+                for (long groupId : groupIds) {
+                    for (long deviceId : Context.getPermissionsManager().getGroupDevices(groupId)) {
+                        Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
+                        result.add(deviceId);
+                    }
+                }
+                for (Device device : Context.getDeviceManager().getItems(result)) {
+                    smsNotificator.sendSMS(String.valueOf(device.getId()),
+                            device.getPhone(),
+                            msg,
+                            "Selected Groups SMS",
+                            null);
+                }
+            } else if (phone != null && !phone.isEmpty()) {
+                smsNotificator.sendSMS(phone, phone, msg, "Direct SMS", null);
             }
-            for (Device device : Context.getDeviceManager().getItems(result)) {
-                smsNotificator.sendSMS(String.valueOf(device.getId()),
-                        device.getPhone(),
-                        msg,
-                        "Selected Groups SMS",
-                        null);
+        } else if (cmd != null && !cmd.isEmpty()) {
+            Map<String, Object> otherDetails = new HashMap<>();
+            Device device = Context.getDeviceManager().getById(deviceIds.get(0));
+            if (cmd.equalsIgnoreCase("OVERSPEED-OFF")) {
+                otherDetails.put("reason", reason);
+                smsNotificator.sendSMS(device.getUniqueId(),
+                        phone,
+                        "AS7777AT+OVERSPEED;",
+                        "Command*OVERSPEED-OFF",
+                        otherDetails);
+            } else {
+                smsNotificator.sendSMS(phone, phone, "", "Direct SMS", null);
             }
-        } else if (phone != null && !phone.isEmpty()) {
-            smsNotificator.sendSMS(phone, phone, msg, "Direct SMS", null);
         }
         return Response.status(200, "Message Queued").build();
     }
-
 }

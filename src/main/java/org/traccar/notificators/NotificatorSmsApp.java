@@ -18,7 +18,6 @@ package org.traccar.notificators;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.SetOptions;
-import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.WriteBatch;
 import org.slf4j.Logger;
@@ -29,8 +28,8 @@ import org.traccar.model.Position;
 import org.traccar.notification.NotificationFormatter;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class NotificatorSmsApp extends Notificator {
@@ -56,6 +55,7 @@ public class NotificatorSmsApp extends Notificator {
             details.put("eventType", event.getType());
             details.put("location", position.getAddress());
             details.put("deviceId", event.getDeviceId());
+            details.put("eventId", event.getId());
             sendSMS(String.valueOf(event.getDeviceId()), phone, msg, "Alert Notification", details);
         }
     }
@@ -67,13 +67,10 @@ public class NotificatorSmsApp extends Notificator {
 
     public void sendSMS(String id, String phone, String msg, String msgType, Map<String, Object> otherDetails) {
         boolean smsAppProd = Context.getConfig().getBoolean("smsApp.prod");
-        String queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
-        String metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
-
+        String queueCollectionName, metaDataCollectionName, commandType;
+        ApiFuture response;
         WriteBatch batch = Context.getSmsAppDb().batch();
-        DocumentReference queuedMessageRef = Context.getSmsAppDb()
-                .collection(queueCollectionName)
-                .document();
+
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("id", id);
         messageData.put("phone", phone);
@@ -81,23 +78,44 @@ public class NotificatorSmsApp extends Notificator {
         messageData.put("msgType", msgType);
         messageData.put("otherDetails", otherDetails);
         messageData.put("queuedTimestamp", FieldValue.serverTimestamp());
-        batch.set(queuedMessageRef, messageData);
+        if (msgType.matches("Command.*")) {
+            queueCollectionName = smsAppProd ?  "Commands" : "Demo-Commands";
+            commandType = msgType.split("\\*")[1];
 
-        DocumentReference queuedMessagesCountRef = Context.getSmsAppDb()
-                .collection(metaDataCollectionName)
-                .document(queueCollectionName);
-        FieldValue inc = FieldValue.increment(1);
-        Map<String, Object> countData = new HashMap<>();
-        countData.put("count", inc);
-        batch.set(queuedMessagesCountRef, countData, SetOptions.merge());
+            DocumentReference queuedMessageRef = Context.getSmsAppDb()
+                    .collection(queueCollectionName)
+                    .document(commandType);
+            Map<String, Object> metaData = new HashMap<>();
+            metaData.put("queuedTimestamp", FieldValue.serverTimestamp());
+            queuedMessageRef.set(metaData, SetOptions.merge());
+            messageData.put("commandType", commandType);
+            messageData.put("queuedTimestamp", new Timestamp(System.currentTimeMillis()).toString());
+            response = queuedMessageRef.update("tasks", FieldValue.arrayUnion(messageData));
+        } else {
+            queueCollectionName = smsAppProd ?  "QueuedMessages" : "Demo-QueuedMessages";
+            metaDataCollectionName = smsAppProd ? "MetaData" : "Demo-MetaData";
 
-        ApiFuture<List<WriteResult>> response = batch.commit();
+            DocumentReference queuedMessageRef = Context.getSmsAppDb()
+                    .collection(queueCollectionName)
+                    .document();
+
+            messageData.put("queuedTimestamp", FieldValue.serverTimestamp());
+            batch.set(queuedMessageRef, messageData);
+
+            DocumentReference queuedMessagesCountRef = Context.getSmsAppDb()
+                    .collection(metaDataCollectionName)
+                    .document(queueCollectionName);
+            FieldValue inc = FieldValue.increment(1);
+            Map<String, Object> countData = new HashMap<>();
+            countData.put("count", inc);
+            batch.set(queuedMessagesCountRef, countData, SetOptions.merge());
+
+            response = batch.commit();
+        }
         try {
-            LOGGER.info(response.toString());
+            LOGGER.info(response.get().toString());
         } catch (Exception e) {
             LOGGER.info(e.getMessage());
         }
     }
-
-
 }
