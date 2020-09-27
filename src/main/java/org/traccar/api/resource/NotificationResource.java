@@ -137,13 +137,7 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                     Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
                     result.add(deviceId);
                 }
-                for (Device device : Context.getDeviceManager().getItems(result)) {
-                    smsNotificator.sendSMS(String.valueOf(device.getId()),
-                            device.getPhone(),
-                            msg,
-                            "Selected Devices SMS",
-                            null);
-                }
+                sendDeviceMessage(msg, smsNotificator, result);
             } else if (groupIds != null && !groupIds.isEmpty()) {
                 List<Long> longList = new ArrayList<Long>();
                 for (Integer i: groupIds) {
@@ -156,15 +150,9 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                         result.add(deviceId);
                     }
                 }
-                for (Device device : Context.getDeviceManager().getItems(result)) {
-                    smsNotificator.sendSMS(String.valueOf(device.getId()),
-                            device.getPhone(),
-                            msg,
-                            "Selected Groups SMS",
-                            null);
-                }
+                sendDeviceMessage(msg, smsNotificator, result);
             } else if (phone != null && !phone.isEmpty()) {
-                smsNotificator.sendSMS(phone, phone, msg, "Direct SMS", null);
+                smsNotificator.sendSMS(phone, phone, msg, "Command*DIRECT-SMS", new HashMap<>());
             }
         } else if (cmd != null && !cmd.isEmpty()) {
             Map<String, Object> otherDetails = new HashMap<>();
@@ -177,9 +165,22 @@ public class NotificationResource extends ExtendedObjectResource<Notification> {
                         "Command*OVERSPEED-OFF",
                         otherDetails);
             } else {
-                smsNotificator.sendSMS(phone, phone, "", "Direct SMS", null);
+                smsNotificator.sendSMS(phone, phone, "", "Command*DIRECT-SMS", new HashMap<>());
             }
         }
         return Response.status(200, "Message Queued").build();
+    }
+
+    private void sendDeviceMessage(String msg, NotificatorSmsApp smsNotificator, HashSet<Long> result) {
+        for (Device device : Context.getDeviceManager().getItems(result)) {
+            Map<String, Object> details = new HashMap<>();
+            details.put("owner", device.getName());
+            details.put("plateNumber", device.getPlateNumber() + " / " + device.getNewPlateNumber());
+            smsNotificator.sendSMS(String.valueOf(device.getId()),
+                    device.getPhone(),
+                    msg,
+                    "Command*DEVICE-SMS",
+                    details);
+        }
     }
 }

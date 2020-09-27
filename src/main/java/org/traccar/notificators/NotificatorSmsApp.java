@@ -56,7 +56,7 @@ public class NotificatorSmsApp extends Notificator {
             details.put("location", position.getAddress());
             details.put("deviceId", event.getDeviceId());
             details.put("eventId", event.getId());
-            sendSMS(String.valueOf(event.getDeviceId()), phone, msg, "Alert Notification", details);
+            sendSMS(String.valueOf(event.getDeviceId()), phone, msg, "Command*OVERSPEED-SMS", details);
         }
     }
 
