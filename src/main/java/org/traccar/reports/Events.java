@@ -46,22 +46,40 @@ public final class Events {
             Collection<String> types, Date from, Date to) throws SQLException {
         ReportUtils.checkPeriodLimit(from, to);
         ArrayList<Event> result = new ArrayList<>();
-        for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
-            Context.getPermissionsManager().checkDevice(userId, deviceId);
-            Collection<Event> events = Context.getDataManager().getEvents(deviceId, from, to);
-            boolean all = types.isEmpty() || types.contains(Event.ALL_EVENTS);
-            for (Event event : events) {
-                if (all || types.contains(event.getType())) {
-                    long geofenceId = event.getGeofenceId();
-                    long maintenanceId = event.getMaintenanceId();
-                    if ((geofenceId == 0 || Context.getGeofenceManager().checkItemPermission(userId, geofenceId))
-                            && (maintenanceId == 0
-                            || Context.getMaintenancesManager().checkItemPermission(userId, maintenanceId))) {
-                        checkEventTimeout(result, event);
-                    }
-                }
+        Collection<Event> events;
+        if (types.isEmpty() || types.contains(Event.ALL_EVENTS)) {
+             events = Context.getDataManager().getEventsForMultiple(
+                     ReportUtils.getDeviceList(deviceIds, groupIds), new ArrayList<String>(), from, to);
+        } else {
+            events = Context.getDataManager().getEventsForMultiple(
+                    ReportUtils.getDeviceList(deviceIds, groupIds), types, from, to);
+        }
+
+        for (Event event : events) {
+            long geofenceId = event.getGeofenceId();
+            long maintenanceId = event.getMaintenanceId();
+            if ((geofenceId == 0 || Context.getGeofenceManager().checkItemPermission(userId, geofenceId))
+                    && (maintenanceId == 0
+                    || Context.getMaintenancesManager().checkItemPermission(userId, maintenanceId))) {
+                checkEventTimeout(result, event);
             }
         }
+//        for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
+//            Context.getPermissionsManager().checkDevice(userId, deviceId);
+//            Collection<Event> events = Context.getDataManager().getEvents(deviceId, from, to);
+//            boolean all = types.isEmpty() || types.contains(Event.ALL_EVENTS);
+//            for (Event event : events) {
+//                if (all || types.contains(event.getType())) {
+//                    long geofenceId = event.getGeofenceId();
+//                    long maintenanceId = event.getMaintenanceId();
+//                    if ((geofenceId == 0 || Context.getGeofenceManager().checkItemPermission(userId, geofenceId))
+//                            && (maintenanceId == 0
+//                            || Context.getMaintenancesManager().checkItemPermission(userId, maintenanceId))) {
+//                        checkEventTimeout(result, event);
+//                    }
+//                }
+//            }
+//        }
         return result;
     }
 

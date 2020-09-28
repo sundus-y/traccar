@@ -394,6 +394,39 @@ public class DataManager {
                 .executeQuery(Event.class);
     }
 
+    public Collection<Event> getEventsForMultiple(Collection<Long> deviceIds,
+                                                  Collection<String> types, Date from, Date to) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM tc_events WHERE serverTime BETWEEN :from AND :to");
+        if (types.size() > 0) {
+            sb.append(" AND type IN (");
+            for (int i = 0; i < types.size(); i++) {
+                sb.append(":eventTypes");
+                sb.append(i);
+                sb.append(",");
+            }
+            sb.setLength(sb.length() - 1);
+            sb.append(")");
+        }
+        if (deviceIds.size() > 0) {
+            sb.append(" AND deviceId IN (");
+            for (int i = 0; i < deviceIds.size(); i++) {
+                sb.append(":deviceIds");
+                sb.append(i);
+                sb.append(",");
+            }
+            sb.setLength(sb.length() - 1);
+            sb.append(")");
+        }
+        sb.append(" ORDER BY serverTime");
+        return QueryBuilder.create(dataSource, sb.toString())
+                .setDate("to", to)
+                .setDate("from", from)
+                .setLongArray("deviceIds", deviceIds)
+                .setStringArray("eventTypes", types)
+                .executeQuery(Event.class);
+    }
+
     public Collection<Statistics> getStatistics(Date from, Date to) throws SQLException {
         return QueryBuilder.create(dataSource, getQuery("database.selectStatistics"))
                 .setDate("from", from)

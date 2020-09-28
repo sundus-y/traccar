@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public final class QueryBuilder {
 
@@ -297,6 +298,22 @@ public final class QueryBuilder {
             }
         }
 
+        return this;
+    }
+
+    public QueryBuilder setLongArray(String name, Collection<Long> value) throws SQLException {
+        List list = new ArrayList(value);
+        for (int i = 0; i < list.size(); i++) {
+            setLong(name.concat(String.valueOf(i)), (Long) list.get(i));
+        }
+        return this;
+    }
+
+    public QueryBuilder setStringArray(String name, Collection<String> value) throws SQLException {
+        List list = new ArrayList(value);
+        for (int i = 0; i < list.size(); i++) {
+            setString(name.concat(String.valueOf(i)), (String) list.get(i));
+        }
         return this;
     }
 

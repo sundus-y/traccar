@@ -64,6 +64,10 @@
         SELECT * FROM tc_events WHERE deviceId = :deviceId AND serverTime BETWEEN :from AND :to ORDER BY serverTime
     </entry>
 
+    <entry key='database.selectEventsForMultiple'>
+        SELECT * FROM tc_events WHERE type IN (:eventTypes) AND deviceId IN (:deviceIds) AND serverTime BETWEEN :from AND :to ORDER BY serverTime
+    </entry>
+
     <entry key='database.deletePositions'>
         DELETE FROM tc_positions WHERE serverTime &lt; :serverTime AND id NOT IN (SELECT positionId FROM tc_devices WHERE positionId IS NOT NULL)
     </entry>
