@@ -32,6 +32,7 @@ import org.traccar.model.Position;
 
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -192,7 +193,8 @@ public class HuabaoProtocolDecoder extends BaseProtocolDecoder {
                 .setHour(BcdUtil.readInteger(buf, 2))
                 .setMinute(BcdUtil.readInteger(buf, 2))
                 .setSecond(BcdUtil.readInteger(buf, 2));
-        position.setTime(dateBuilder.getDate());
+//        position.setTime(dateBuilder.getDate());
+        position.setTime(new Date());
 
         while (buf.readableBytes() > 2) {
             int subtype = buf.readUnsignedByte();
