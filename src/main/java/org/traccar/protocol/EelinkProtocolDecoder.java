@@ -116,7 +116,7 @@ public class EelinkProtocolDecoder extends BaseProtocolDecoder {
 
         position.set(Position.KEY_INDEX, index);
 
-//        position.setTime(new Date(buf.readUnsignedInt() * 1000));
+        position.setTime(new Date(buf.readUnsignedInt() * 1000));
         position.setTime(new Date());
         position.setLatitude(buf.readInt() / 1800000.0);
         position.setLongitude(buf.readInt() / 1800000.0);
@@ -174,7 +174,7 @@ public class EelinkProtocolDecoder extends BaseProtocolDecoder {
 
         position.set(Position.KEY_INDEX, index);
 
-//        position.setTime(new Date(buf.readUnsignedInt() * 1000));
+        position.setTime(new Date(buf.readUnsignedInt() * 1000));
         position.setTime(new Date());
 
         int flags = buf.readUnsignedByte();
