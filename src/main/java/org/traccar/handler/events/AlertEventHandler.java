@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import io.netty.channel.ChannelHandler;
+import org.traccar.Context;
 import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.database.IdentityManager;
@@ -39,10 +40,10 @@ public class AlertEventHandler extends BaseEventHandler {
     @Override
     protected Map<Event, Position> analyzePosition(Position position) {
         Object alarm = position.getAttributes().get(Position.KEY_ALARM);
+        Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
         if (alarm != null) {
             boolean ignoreAlert = false;
             if (ignoreDuplicateAlerts) {
-                Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
                 if (lastPosition != null && alarm.equals(lastPosition.getAttributes().get(Position.KEY_ALARM))) {
                     ignoreAlert = true;
                 }
@@ -52,6 +53,13 @@ public class AlertEventHandler extends BaseEventHandler {
                 event.set(Position.KEY_ALARM, (String) alarm);
                 return Collections.singletonMap(event, position);
             }
+        } else if (lastPosition != null && (lastPosition.getSpeed() - position.getSpeed() > 40)) {
+            Event event = new Event(Event.TYPE_ALARM, position.getDeviceId(), position.getId());
+            event.set(Position.KEY_ALARM, "hardBraking");
+            event.set("currentSpeed", position.getSpeed());
+            event.set("previousSpeed", lastPosition.getSpeed());
+            Context.getNotificationManager().updateEvent(event, position);
+            return Collections.singletonMap(event, position);
         }
         return null;
     }
