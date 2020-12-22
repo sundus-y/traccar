@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+        logicalFilePath="changelog-5.9">
+
+    <changeSet author="Sundus" id="changelog-5.9">
+        <createTable tableName="tc_customMapLocations">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="VARCHAR(128)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(128)" />
+            <column name="area" type="TEXT">
+                <constraints nullable="false" />
+            </column>
+            <column name="attributes" type="VARCHAR(12000)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="tc_user_custommaplocation">
+            <column name="userid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="customMapLocationid" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_user_custommaplocation" baseColumnNames="userid" constraintName="fk_user_custom_map_location_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_user_custommaplocation" baseColumnNames="customMapLocationid" constraintName="fk_user_custom_map_location_customMapLocationid" referencedTableName="tc_customMapLocations" referencedColumnNames="id" onDelete="CASCADE" />
+
+    </changeSet>
+
+</databaseChangeLog>

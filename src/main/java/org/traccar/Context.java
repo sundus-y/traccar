@@ -37,6 +37,7 @@ import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DriversManager;
 import org.traccar.database.GeofenceManager;
+import org.traccar.database.CustomMapLocationManager;
 import org.traccar.database.GroupsManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.LdapProvider;
@@ -56,6 +57,7 @@ import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
 import org.traccar.model.Geofence;
+import org.traccar.model.CustomMapLocation;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.Notification;
@@ -177,6 +179,12 @@ public final class Context {
 
     public static GeofenceManager getGeofenceManager() {
         return geofenceManager;
+    }
+
+    private static CustomMapLocationManager customMapLocationManager;
+
+    public static CustomMapLocationManager getCustomMapLocationManager() {
+        return customMapLocationManager;
     }
 
     private static CalendarManager calendarManager;
@@ -378,6 +386,7 @@ public final class Context {
     private static void initEventsModule() {
 
         geofenceManager = new GeofenceManager(dataManager);
+        customMapLocationManager = new CustomMapLocationManager(dataManager);
         calendarManager = new CalendarManager(dataManager);
         maintenancesManager = new MaintenancesManager(dataManager);
         notificationManager = new NotificationManager(dataManager);
@@ -425,6 +434,8 @@ public final class Context {
             return (BaseObjectManager<T>) attributesManager;
         } else if (clazz.equals(Geofence.class)) {
             return (BaseObjectManager<T>) geofenceManager;
+        } else if (clazz.equals(CustomMapLocation.class)) {
+            return (BaseObjectManager<T>) customMapLocationManager;
         } else if (clazz.equals(Driver.class)) {
             return (BaseObjectManager<T>) driversManager;
         } else if (clazz.equals(Command.class)) {

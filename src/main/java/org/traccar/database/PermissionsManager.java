@@ -25,6 +25,7 @@ import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
 import org.traccar.model.Geofence;
+import org.traccar.model.CustomMapLocation;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.ManagedUser;
@@ -348,6 +349,8 @@ public class PermissionsManager {
             checkUser(userId, objectId);
         } else if (object.equals(Geofence.class)) {
             manager = Context.getGeofenceManager();
+        } else if (object.equals(CustomMapLocation.class)) {
+            manager = Context.getCustomMapLocationManager();
         } else if (object.equals(Attribute.class)) {
             manager = Context.getAttributesManager();
         } else if (object.equals(Driver.class)) {

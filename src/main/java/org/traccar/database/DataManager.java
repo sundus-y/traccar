@@ -47,6 +47,7 @@ import org.traccar.model.Device;
 import org.traccar.model.Driver;
 import org.traccar.model.Event;
 import org.traccar.model.Geofence;
+import org.traccar.model.CustomMapLocation;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.ManagedUser;
@@ -446,6 +447,8 @@ public class DataManager {
                 return ManagedUser.class;
             case "geofence":
                 return Geofence.class;
+            case "custommaplocation":
+                return CustomMapLocation.class;
             case "driver":
                 return Driver.class;
             case "attribute":

@@ -40,6 +40,7 @@ import org.traccar.model.Group;
 import org.traccar.model.GroupedModel;
 import org.traccar.model.ScheduledModel;
 import org.traccar.model.User;
+import org.traccar.model.CustomMapLocation;
 
 public abstract class BaseObjectResource<T extends BaseModel> extends BaseResource {
 
@@ -92,8 +93,16 @@ public abstract class BaseObjectResource<T extends BaseModel> extends BaseResour
         manager.addItem(entity);
         LogAction.create(getUserId(), entity);
 
-        Context.getDataManager().linkObject(User.class, getUserId(), baseClass, entity.getId(), true);
-        LogAction.link(getUserId(), User.class, getUserId(), baseClass, entity.getId());
+        if (entity instanceof CustomMapLocation) {
+            Set<Long> userIds = Context.getManager(User.class).getAllItems();
+            for (Long userId : userIds) {
+                Context.getDataManager().linkObject(User.class, userId, baseClass, entity.getId(), true);
+                LogAction.link(userId, User.class, userId, baseClass, entity.getId());
+            }
+        } else {
+            Context.getDataManager().linkObject(User.class, getUserId(), baseClass, entity.getId(), true);
+            LogAction.link(getUserId(), User.class, getUserId(), baseClass, entity.getId());
+        }
 
         if (manager instanceof SimpleObjectManager) {
             ((SimpleObjectManager<T>) manager).refreshUserItems();
