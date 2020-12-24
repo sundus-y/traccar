@@ -23,7 +23,7 @@
             </column>
         </createTable>
 
-        <createTable tableName="tc_user_custommaplocation">
+        <createTable tableName="tc_user_customMapLocation">
             <column name="userid" type="INT">
                 <constraints nullable="false" />
             </column>
@@ -32,8 +32,8 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="tc_user_custommaplocation" baseColumnNames="userid" constraintName="fk_user_custom_map_location_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
-        <addForeignKeyConstraint baseTableName="tc_user_custommaplocation" baseColumnNames="customMapLocationid" constraintName="fk_user_custom_map_location_customMapLocationid" referencedTableName="tc_customMapLocations" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_user_customMapLocation" baseColumnNames="userid" constraintName="fk_user_custom_map_location_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_user_customMapLocation" baseColumnNames="customMapLocationid" constraintName="fk_user_custom_map_location_customMapLocationid" referencedTableName="tc_customMapLocations" referencedColumnNames="id" onDelete="CASCADE" />
 
     </changeSet>
 
