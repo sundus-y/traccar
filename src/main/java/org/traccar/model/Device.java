@@ -317,6 +317,8 @@ public class Device extends GroupedModel {
         this.registrationSubCity = registrationSubCity;
     }
 
+    private String onlineStatus;
+
     @QueryIgnore
     public String getOnlineStatus() {
         if (lastUpdate != null) {
