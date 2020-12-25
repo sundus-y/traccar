@@ -43,16 +43,18 @@ public final class Events {
     }
 
     public static Collection<Event> getObjects(long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
-            Collection<String> types, Date from, Date to) throws SQLException {
-        ReportUtils.checkPeriodLimit(from, to);
+            Collection<String> types, Collection<String> subTypes, HashMap<String, Date> fromTo) throws SQLException {
+        ReportUtils.checkPeriodLimit(fromTo.get("from"), fromTo.get("to"));
         ArrayList<Event> result = new ArrayList<>();
         Collection<Event> events;
         if (types.isEmpty() || types.contains(Event.ALL_EVENTS)) {
              events = Context.getDataManager().getEventsForMultiple(
-                     ReportUtils.getDeviceList(deviceIds, groupIds), new ArrayList<String>(), from, to);
+                     ReportUtils.getDeviceList(deviceIds, groupIds),
+                     new ArrayList<String>(), new ArrayList<String>(), fromTo.get("from"), fromTo.get("to"));
         } else {
             events = Context.getDataManager().getEventsForMultiple(
-                    ReportUtils.getDeviceList(deviceIds, groupIds), types, from, to);
+                    ReportUtils.getDeviceList(deviceIds, groupIds), types,
+                    subTypes, fromTo.get("from"), fromTo.get("to"));
         }
 
         for (Event event : events) {
@@ -85,15 +87,17 @@ public final class Events {
 
     public static void getExcel(OutputStream outputStream,
             long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
-            Collection<String> types, Date from, Date to) throws SQLException, IOException {
-        ReportUtils.checkPeriodLimit(from, to);
+            Collection<String> types, Collection<String> subTypes, HashMap<String, Date> fromTo)
+            throws SQLException, IOException {
+        ReportUtils.checkPeriodLimit(fromTo.get("from"), fromTo.get("to"));
         ArrayList<DeviceReport> devicesEvents = new ArrayList<>();
         ArrayList<String> sheetNames = new ArrayList<>();
         HashMap<Long, String> geofenceNames = new HashMap<>();
         HashMap<Long, String> maintenanceNames = new HashMap<>();
         for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
             Context.getPermissionsManager().checkDevice(userId, deviceId);
-            Collection<Event> events = Context.getDataManager().getEvents(deviceId, from, to);
+            Collection<Event> events = Context.getDataManager().getEvents(deviceId,
+                    fromTo.get("from"), fromTo.get("to"));
             boolean all = types.isEmpty() || types.contains(Event.ALL_EVENTS);
             for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
                 Event event = iterator.next();
@@ -154,8 +158,8 @@ public final class Events {
             jxlsContext.putVar("sheetNames", sheetNames);
             jxlsContext.putVar("geofenceNames", geofenceNames);
             jxlsContext.putVar("maintenanceNames", maintenanceNames);
-            jxlsContext.putVar("from", from);
-            jxlsContext.putVar("to", to);
+            jxlsContext.putVar("from", fromTo.get("from"));
+            jxlsContext.putVar("to", fromTo.get("to"));
             ReportUtils.processTemplateWithSheets(inputStream, outputStream, jxlsContext);
         }
     }

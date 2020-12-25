@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
+import java.util.HashMap;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -175,10 +177,13 @@ public class ReportResource extends BaseResource {
     @GET
     public Collection<Event> getEvents(
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
-            @QueryParam("type") final List<String> types,
+            @QueryParam("type") final List<String> types, @QueryParam("subType") final List<String> subTypes,
             @QueryParam("from") String from, @QueryParam("to") String to) throws SQLException {
-        return Events.getObjects(getUserId(), deviceIds, groupIds, types,
-                DateUtil.parseDate(from), DateUtil.parseDate(to));
+        return Events.getObjects(getUserId(), deviceIds, groupIds, types, subTypes,
+                new HashMap<String, Date>() {{
+                    put("from", DateUtil.parseDate(from));
+                    put("to", DateUtil.parseDate(to));
+                }});
     }
 
     @Path("events")
@@ -186,12 +191,15 @@ public class ReportResource extends BaseResource {
     @Produces(XLSX)
     public Response getEventsExcel(
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
-            @QueryParam("type") final List<String> types,
+            @QueryParam("type") final List<String> types, @QueryParam("subType") final List<String> subTypes,
             @QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("mail") boolean mail)
             throws SQLException, IOException {
         return executeReport(getUserId(), mail, stream -> {
-            Events.getExcel(stream, getUserId(), deviceIds, groupIds, types,
-                    DateUtil.parseDate(from), DateUtil.parseDate(to));
+            Events.getExcel(stream, getUserId(), deviceIds, groupIds, types, subTypes,
+                    new HashMap<String, Date>() {{
+                        put("from", DateUtil.parseDate(from));
+                        put("to", DateUtil.parseDate(to));
+                    }});
         }, "Device Event Report");
     }
 

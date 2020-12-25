@@ -17,6 +17,7 @@ package org.traccar.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.traccar.Context;
 import org.traccar.database.DeviceManager;
@@ -314,5 +315,18 @@ public class Device extends GroupedModel {
 
     public void setRegistrationSubCity(String registrationSubCity) {
         this.registrationSubCity = registrationSubCity;
+    }
+
+    @QueryIgnore
+    public String getOnlineStatus() {
+        if (lastUpdate != null) {
+            Date now =  new Date();
+            Date lastUp = new Date(lastUpdate.getTime());
+            long diffInMill = now.getTime() - lastUpdate.getTime();
+            long diff = TimeUnit.DAYS.convert(diffInMill, TimeUnit.MILLISECONDS);
+            return (diff <= 1) ? "Online" : "Offline Since " + diff + " Days.";
+        } else {
+            return "--";
+        }
     }
 }

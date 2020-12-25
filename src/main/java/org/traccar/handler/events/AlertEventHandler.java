@@ -55,10 +55,17 @@ public class AlertEventHandler extends BaseEventHandler {
             }
         } else if (lastPosition != null && (lastPosition.getSpeed() - position.getSpeed() > 40)) {
             Event event = new Event(Event.TYPE_ALARM, position.getDeviceId(), position.getId());
-            event.set(Position.KEY_ALARM, "hardBraking");
+            event.set(Position.KEY_ALARM, Position.ALARM_BRAKING);
             event.set("currentSpeed", position.getSpeed());
             event.set("previousSpeed", lastPosition.getSpeed());
             Context.getNotificationManager().updateEvent(event, position);
+
+            event = new Event(Event.TYPE_ALARM, position.getDeviceId(), position.getId());
+            event.set(Position.KEY_ALARM, Position.ALARM_ACCIDENT);
+            event.set("currentSpeed", position.getSpeed());
+            event.set("previousSpeed", lastPosition.getSpeed());
+            Context.getNotificationManager().updateEvent(event, position);
+
             return Collections.singletonMap(event, position);
         }
         return null;

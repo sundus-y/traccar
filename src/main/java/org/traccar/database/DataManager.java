@@ -396,7 +396,8 @@ public class DataManager {
     }
 
     public Collection<Event> getEventsForMultiple(Collection<Long> deviceIds,
-                                                  Collection<String> types, Date from, Date to) throws SQLException {
+                                                  Collection<String> types, Collection<String> subTypes,
+                                                  Date from, Date to) throws SQLException {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM tc_events WHERE serverTime BETWEEN :from AND :to");
         if (types.size() > 0) {
@@ -407,6 +408,16 @@ public class DataManager {
                 sb.append(",");
             }
             sb.setLength(sb.length() - 1);
+            sb.append(")");
+        }
+        if (subTypes.size() > 0) {
+            sb.append(" AND (");
+            for (int i = 0; i < subTypes.size(); i++) {
+                sb.append("attributes LIKE '%");
+                sb.append(subTypes.toArray()[i]);
+                sb.append("%' OR ");
+            }
+            sb.setLength(sb.length() - 4);
             sb.append(")");
         }
         if (deviceIds.size() > 0) {
