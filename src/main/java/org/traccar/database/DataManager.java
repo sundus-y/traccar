@@ -420,7 +420,7 @@ public class DataManager {
             sb.setLength(sb.length() - 4);
             sb.append(")");
         }
-        if (deviceIds.size() > 0) {
+        if (deviceIds.size() > 0 && deviceIds.size() < 50) {
             sb.append(" AND deviceId IN (");
             for (int i = 0; i < deviceIds.size(); i++) {
                 sb.append(":deviceIds");
