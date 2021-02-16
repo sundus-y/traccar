@@ -331,4 +331,15 @@ public class Device extends GroupedModel {
             return "--";
         }
     }
+
+    private String finalPlateNumber;
+
+    @QueryIgnore
+    public String getFinalPlateNumber() {
+        if (newPlateNumber != null && newPlateNumber != "") {
+            return newPlateNumber;
+        } else {
+            return plateNumber;
+        }
+    }
 }
